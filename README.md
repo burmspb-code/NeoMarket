@@ -9,5 +9,4 @@
       https://github.com/burmspb-code/NeoMarket.git
     2. Установите зависимости:
         poetry install
-    3. Запустите проект:
-        poetry run python src/main.py
+    
