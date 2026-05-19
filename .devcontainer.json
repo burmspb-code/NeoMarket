@@ -1,0 +1,4 @@
+{
+  "name": "Python & Poetry Project",
+  "postCreateCommand": "pip install --user 'poetry>=2.0.0' && poetry config virtualenvs.in-project true && poetry install --no-root"
+}
