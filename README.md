@@ -9,4 +9,6 @@
       https://github.com/burmspb-code/NeoMarket.git
     2. Установите зависимости:
         poetry install
-    
+    3. Запустить сервер:
+        python manage.py runserver
+        
