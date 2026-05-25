@@ -1,4 +1,13 @@
 {
   "name": "Python & Poetry Project",
-  "postCreateCommand": "pip install --user 'poetry>=2.0.0' && poetry config virtualenvs.in-project true && poetry install --no-root && echo 'source /workspaces/NeoMarket/.venv/bin/activate' >> ~/.bashrc"
+  "postCreateCommand": "pip install --user 'poetry>=2.0.0' && poetry config virtualenvs.in-project true && poetry install --no-root && echo 'source /workspaces/NeoMarket/.venv/bin/activate' >> ~/.bashrc",
+  
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/workspaces/NeoMarket/.venv/bin/python",
+        "python.terminal.activateEnvInSelectedTerminal": true
+      }
+    }
+  }
 }
