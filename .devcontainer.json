@@ -1,6 +1,6 @@
 {
   "name": "Python & Poetry Project",
-  "postCreateCommand": "pip install --user 'poetry>=2.0.0' && poetry config virtualenvs.in-project true && poetry install --no-root && echo 'source /workspaces/NeoMarket/.venv/bin/activate' >> ~/.bashrc",
+  "postCreateCommand": "cp -n .env.example .env || true && pip install --user 'poetry>=2.0.0' && poetry config virtualenvs.in-project true && poetry install --no-root && echo 'source /workspaces/NeoMarket/.venv/bin/activate' >> ~/.bashrc",
   
   "customizations": {
     "vscode": {

@@ -43,7 +43,7 @@ class Product(models.Model):
         verbose_name="Категория",
         help_text="Выберите категорию товара",
     )
-    cost = models.DecimalField(
+    price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name="Стоимость",
