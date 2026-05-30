@@ -1,0 +1,101 @@
+[
+{
+    "model": "library.author",
+    "pk": 1,
+    "fields": {
+        "first_name": "Александр",
+        "last_name": "Пушкин",
+        "birth_date": "2026-05-23"
+    }
+},
+{
+    "model": "library.author",
+    "pk": 2,
+    "fields": {
+        "first_name": "Михаил",
+        "last_name": "Лермонтов",
+        "birth_date": "2026-05-23"
+    }
+},
+{
+    "model": "library.author",
+    "pk": 3,
+    "fields": {
+        "first_name": "Сергей",
+        "last_name": "Есенин",
+        "birth_date": "2026-05-23"
+    }
+},
+{
+    "model": "library.author",
+    "pk": 4,
+    "fields": {
+        "first_name": "Лев",
+        "last_name": "Толстой",
+        "birth_date": "1821-11-11"
+    }
+},
+{
+    "model": "library.author",
+    "pk": 5,
+    "fields": {
+        "first_name": "Федор",
+        "last_name": "Достоевский",
+        "birth_date": "1821-11-11"
+    }
+},
+{
+    "model": "library.book",
+    "pk": 1,
+    "fields": {
+        "title": "Сказка о царе Салтане",
+        "publication_date": "2026-05-23",
+        "author": 1
+    }
+},
+{
+    "model": "library.book",
+    "pk": 2,
+    "fields": {
+        "title": "Белая береза",
+        "publication_date": "2026-05-23",
+        "author": 3
+    }
+},
+{
+    "model": "library.book",
+    "pk": 3,
+    "fields": {
+        "title": "Мцыри",
+        "publication_date": "2026-05-23",
+        "author": 2
+    }
+},
+{
+    "model": "library.book",
+    "pk": 4,
+    "fields": {
+        "title": "Война и мир",
+        "publication_date": "1861-01-01",
+        "author": 4
+    }
+},
+{
+    "model": "library.book",
+    "pk": 5,
+    "fields": {
+        "title": "Анна Каренина",
+        "publication_date": "1877-01-01",
+        "author": 4
+    }
+},
+{
+    "model": "library.book",
+    "pk": 6,
+    "fields": {
+        "title": "Преступление и наказание",
+        "publication_date": "1866-01-01",
+        "author": 5
+    }
+}
+]

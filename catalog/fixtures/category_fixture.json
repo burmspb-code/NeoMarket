@@ -1,0 +1,18 @@
+[
+{
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+        "name": "Замки врезные",
+        "description": "с ручками"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 4,
+    "fields": {
+        "name": "Замки накладные",
+        "description": "для деревянных дверей"
+    }
+}
+]
