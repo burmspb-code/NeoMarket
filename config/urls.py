@@ -5,7 +5,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("catalog.urls", namespace="catalog")),
+    path("catalog/", include("catalog.urls", namespace="catalog")),
+    path("library/", include("library.urls", namespace="library"))
 ]
 
 # Настройка для раздачи медиафайлов в режиме разработки
