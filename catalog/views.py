@@ -1,12 +1,24 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from catalog.models import Product
+from django.core.paginator import Paginator  # Для прокрутки страниц
 
 
-# Логика для главной страницы
+# Логика для главной страницы спагинацией
 def home_view(request):
-    products = Product.objects.all()[:3] # Берем первые три товара
-    context = {'products':products}
+    products_list = Product.objects.all().order_by('id')  # Сортировка обязательна для пагинации
+    
+    # Показывать по 3 товара на странице
+    paginator = Paginator(products_list, 3) 
+    
+    # Получаем номер текущей страницы из URL (например, /?page=2)
+    page_number = request.GET.get('page')
+    
+    # Получаем товары конкретно для этой страницы
+    page_obj = paginator.get_page(page_number)
+    
+    # Передаем page_obj в контекст под именем products
+    context = {'products': page_obj}
     return render(request, 'catalog/index.html', context)
 
 # Логика для страницы каталога

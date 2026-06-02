@@ -5,11 +5,15 @@
 
 {% block content %}
 <div class="container mt-4">
-    <!-- Хлебные крошки -->
+    <!-- Навигационная цепочка -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">Главная</a></li>
-            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">Каталог</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'catalog:home' %}" class="text-decoration-none text-muted">Главная</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'catalog:catalog_list' %}" class="text-decoration-none text-muted">Каталог</a>
+            </li>
             <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
         </ol>
     </nav>

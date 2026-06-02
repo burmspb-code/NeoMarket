@@ -55,5 +55,56 @@
         </div>
         {% endfor %}
     </div>
+
+        </div> <!-- Конец сетки <div class="row ..."> -->
+
+    <!-- Блок пагинации (переключения страниц) -->
+    {% if products.has_other_pages %}
+    <nav aria-label="Навигация по страницам" class="mt-5">
+        <ul class="pagination justify-content-center">
+            
+            <!-- Кнопка "Назад" -->
+            {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Назад">
+                        <span aria-hidden="true">&laquo; Назад</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo; Назад</span>
+                </li>
+            {% endif %}
+
+            <!-- Номера страниц -->
+            {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link bg-primary border-primary">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Кнопка "Вперед" -->
+            {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Вперед">
+                        <span aria-hidden="true">Вперед &raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Вперед &raquo;</span>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+    {% endif %}
+
 </div>
 {% endblock %}
