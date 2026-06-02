@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect 
 from django.contrib import messages
 from catalog.models import Product
 from django.core.paginator import Paginator  # Для прокрутки страниц
+from .forms import ProductForm 
 
 
 # Логика для главной страницы спагинацией
@@ -31,6 +32,19 @@ def catalog_view(request):
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     return render(request, "catalog/product_detail.html", {'product':product})
+
+# Логика для добавления нового товара
+def product_create_view(request):
+    if request.method == 'POST' :
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save() # Сохраняем в базу данных
+            messages.success(request, 'Новый товар успешно добавлен в каталог!')
+            return redirect('catalog:catalog_list') # Перенаправление на страницу каталога
+    else:
+        form = ProductForm() # Пустая форма
+
+    return render(request, 'catalog/product_form.html', {'form': form})
 
 # Логика для контактов с формой обратной связи
 def contacts_view(request):

@@ -1,0 +1,47 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Добавление товара — NeoMarket{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 p-4">
+                <h1 class="h3 fw-bold text-dark text-center mb-4">Добавить новый товар</h1>
+                
+                <!-- Форма отправки данных -->
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Вывод полей формы циклом -->
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            <!-- Вывод ошибок валидации поля, если они есть -->
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ field.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Кнопки действий -->
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold py-2">
+                            <i class="bi bi-plus-circle me-2"></i>Сохранить товар
+                        </button>
+                        <a href="{% url 'catalog:catalog_list' %}" class="btn btn-outline-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
