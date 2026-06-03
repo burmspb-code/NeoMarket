@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Динамический заголовок вкладки -->
+    <title>{% block title %}NeoMarket — Магазин замков и фурнитуры{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="{% static 'catalog/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Иконки Bootstrap -->
+    <link href="{% static 'catalog/css/bootstrap-icons.css' %}" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Подключаем шапку сайта (Навигацию) из подшаблона -->
+    {% include 'catalog/includes/navbar.html' %}
+
+    <!-- Основной контент страницы -->
+    <div class="flex-grow-1">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Футор сайта -->
+    <footer class="bg-dark text-light py-4 mt-auto border-top border-secondary">
+        <div class="container text-center">
+            <p class="mb-1">&copy; {% now "Y" %} NeoMarket. Все права защищены.</p>
+            <small class="text-muted">Замки, дверная фурнитура и системы безопасности</small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="{% static 'catalog/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
