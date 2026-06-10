@@ -102,3 +102,23 @@ STATICFILES_DIRS = (BASE_DIR / "static",)
 MEDIA_URL = "media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Использование SMTP для реальной отправки писем
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Конфигурация SMTP Google
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Логин и пароль приложения
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+
+# 16-значный пароль приложения
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+# Email отправителя по умолчанию
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+# Email для получения уведомлений о просмотрах
+EMAIL_ADMIN_NOTIFICATION = os.getenv("EMAIL_ADMIN_NOTIFICATION")

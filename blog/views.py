@@ -1,4 +1,6 @@
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.mail import send_mail
+from django.conf import settings
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -32,8 +34,19 @@ class PostDetailView(DetailView):
         obj = super().get_object(queryset)
         obj.views_count += 1
         obj.save()
+
+        # Строгое условие на 100 просмотров
+        if obj.views_count == 100:
+            send_mail(
+                subject="Поздравляем! Статья набрала 100 просмотров",
+                message=f"Ваша статья «{obj.title}» успешно достигла отметки в 100 просмотров!",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.EMAIL_ADMIN_NOTIFICATION],
+                fail_silently=True, # Ошибка отправки не сломает загрузку страницы читателю
+            )
+            
         return obj
-    
+
 
 # Создание статьи
 class PostCreateView(SuccessMessageMixin, CreateView):
