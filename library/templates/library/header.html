@@ -1,5 +1,8 @@
 <!-- library/templates/library/header.html -->
 <header>
     <h1>Библиотека</h1>
-    <p>Добро пожаловать в нашу библиотеку!</p>
+    <nav>
+        <a href="{% url 'library:books_list' %}">Список книг</a>
+        <a href="{% url 'library:book_new' %}">Создать книгу</a>
+    </nav>
 </header>
