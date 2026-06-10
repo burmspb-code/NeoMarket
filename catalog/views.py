@@ -1,62 +1,54 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+
+from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.urls import reverse_lazy
 from catalog.models import Product
-from django.core.paginator import Paginator  # Для прокрутки страниц
 from .forms import ProductForm
 
 
 # Логика для главной страницы спагинацией
-def home_view(request):
-    products_list = Product.objects.all().order_by(
-        "id"
-    )  # Сортировка обязательна для пагинации
+class HomeListView(ListView):
+    model = Product
+    template_name = "catalog/index.html"
+    context_object_name = "products"
+    paginate_by = 3
 
-    # Показывать по 3 товара на странице
-    paginator = Paginator(products_list, 3)
-
-    # Получаем номер текущей страницы из URL (например, /?page=2)
-    page_number = request.GET.get("page")
-
-    # Получаем товары конкретно для этой страницы
-    page_obj = paginator.get_page(page_number)
-
-    # Передаем page_obj в контекст под именем products
-    context = {"products": page_obj}
-    return render(request, "catalog/index.html", context)
+    def get_queryset(self):
+        return Product.objects.all().order_by("id")
 
 
 # Логика для страницы каталога
-def catalog_view(request):
-    products = Product.objects.all()
-    context = {"products": products}
-    return render(request, "catalog/catalog_view.html", context)
+class CatalogListView(ListView):
+    model = Product
+    context_object_name = "products"
+
 
 
 # Логика для страницы детального описания товара
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    return render(request, "catalog/product_detail.html", {"product": product})
+class ProductDetailView(DetailView):
+    model = Product
+    context_object_name = "product"
 
 
 # Логика для добавления нового товара
-def product_create_view(request):
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()  # Сохраняем в базу данных
-            messages.success(request, "Новый товар успешно добавлен в каталог!")
-            return redirect(
-                "catalog:catalog_list"
-            )  # Перенаправление на страницу каталога
-    else:
-        form = ProductForm()  # Пустая форма
+class ProductCreateView(CreateView):
+    model = Product
+    context_object_name = "product"
+    form_class = ProductForm
 
-    return render(request, "catalog/product_form.html", {"form": form})
+    # Куда перенаправить пользователя после успешного создания товара
+    success_url = reverse_lazy("catalog:catalog_list")
+
+    # Текст всплывающего уведомления
+    success_message = "Новый товар успешно добавлен в каталог!"
 
 
 # Логика для контактов с формой обратной связи
-def contacts_view(request):
-    if request.method == "POST":
+class ContactsView(TemplateView):
+    template_name = "catalog/contacts.html"
+
+    def post(self, request, *args, **kwargs):
         # Получаем данные из полей формы
         name = request.POST.get("name")
         phone = request.POST.get("phone")
@@ -67,4 +59,6 @@ def contacts_view(request):
             request,
             "Ваше сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.",
         )
-    return render(request, "catalog/contacts.html")
+
+        # Перенаправляем на ту же страницу контактов, чтобы очистить форму (защита от дублирования F5)
+        return redirect(request.path)
