@@ -1,0 +1,67 @@
+{% extends 'catalog/base.html' %}
+
+<!-- Динамический заголовок вкладки -->
+{% block title %}{{ post.title }} — Блог NeoMarket{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Навигационные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}" class="text-decoration-none">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog:list' %}" class="text-decoration-none">Блог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ post.title|truncatechars:30 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Карточка статьи -->
+            <article class="card shadow-sm border-0 p-4 p-md-5 bg-white rounded-3">
+                
+                <!-- Статистика и дата -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center text-muted small mb-3 pb-3 border-bottom">
+                    <div>
+                        <span class="me-3"><i class="bi bi-calendar3 me-1"></i>{{ post.created_at|date:"d.m.Y в H:i" }}</span>
+                        <span><i class="bi bi-eye me-1"></i>Просмотров: <strong>{{ post.views_count }}</strong></span>
+                    </div>
+                    
+                    <!-- Кнопки управления (видны автору/менеджеру) -->
+                    <div class="mt-2 mt-sm-0">
+                        <a href="{% url 'blog:update' post.pk %}" class="btn btn-sm btn-outline-secondary me-1">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                        <a href="{% url 'blog:delete' post.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i>Удалить
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Заголовок статьи -->
+                <h1 class="display-5 fw-bold text-dark mb-4">{{ post.title }}</h1>
+
+                <!-- Большое изображение превью (если загружено) -->
+                {% if post.preview %}
+                    <div class="mb-4 text-center bg-light rounded overflow-hidden">
+                        <img src="{{ post.preview.url }}" class="img-fluid rounded" alt="{{ post.title }}" style="max-height: 450px; w-100; object-fit: cover;">
+                    </div>
+                {% endif %}
+
+                <!-- Текст статьи -->
+                <div class="card-text text-secondary lh-lg fs-5">
+                    <!-- Фильтр linebreaksbr автоматически превратит переносы строк из textarea в теги <br> -->
+                    {{ post.content|linebreaksbr }}
+                </div>
+
+                <!-- Кнопка возврата -->
+                <div class="mt-5 pt-3 border-top text-center text-sm-start">
+                    <a href="{% url 'blog:list' %}" class="btn btn-outline-primary px-4 fw-bold">
+                        <i class="bi bi-arrow-left me-2"></i>Вернуться в блог
+                    </a>
+                </div>
+
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %}
