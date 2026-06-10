@@ -24,7 +24,6 @@ class CatalogListView(ListView):
     context_object_name = "products"
 
 
-
 # Логика для страницы детального описания товара
 class ProductDetailView(DetailView):
     model = Product

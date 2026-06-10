@@ -8,34 +8,29 @@ class Post(models.Model):
         help_text="Введите название статьи",
     )
     content = models.TextField(
-        verbose_name="Содержимое",
-        help_text="Введите текст статьи"
+        verbose_name="Содержимое", help_text="Введите текст статьи"
     )
-    preview  = models.ImageField(
+    preview = models.ImageField(
         upload_to="blog_previews/",
         blank=True,
         null=True,
         verbose_name="Фото",
         help_text="Загрузите превью товара",
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="Дата создания"
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     is_published = models.BooleanField(
         default=True,
         verbose_name="Признак публикации",
-        help_text="Снимите галочку, чтобы скрыть статью"
+        help_text="Снимите галочку, чтобы скрыть статью",
     )
     views_count = models.PositiveIntegerField(
-        default=0,
-        verbose_name="Количество просмотров"
+        default=0, verbose_name="Количество просмотров"
     )
 
     class Meta:
         verbose_name = "Блоговая запись"
         verbose_name_plural = "Блоговые записи"
-        ordering = ["-created_at"] # Свежие статьи сверху
+        ordering = ["-created_at"]  # Свежие статьи сверху
 
     def __str__(self):
-            return self.title
+        return self.title

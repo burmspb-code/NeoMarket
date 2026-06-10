@@ -12,6 +12,7 @@ from django.views.generic import (
 
 from .models import Post
 
+
 # Список всех опубликованных статей
 class PostListView(ListView):
     model = Post
@@ -22,7 +23,7 @@ class PostListView(ListView):
     def get_queryset(self):
         # Показываем только опубликованные посты
         return Post.objects.filter(is_published=True).order_by("-created_at")
-    
+
 
 # Детальный просмотр статьи + счетчик просмотров
 class PostDetailView(DetailView):
@@ -42,9 +43,9 @@ class PostDetailView(DetailView):
                 message=f"Ваша статья «{obj.title}» успешно достигла отметки в 100 просмотров!",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.EMAIL_ADMIN_NOTIFICATION],
-                fail_silently=True, # Ошибка отправки не сломает загрузку страницы читателю
+                fail_silently=True,  # Ошибка отправки не сломает загрузку страницы читателю
             )
-            
+
         return obj
 
 
@@ -72,4 +73,3 @@ class PostDeleteView(DeleteView):
     model = Post
     template_name = "blog/post_confirm_delete.html"
     success_url = reverse_lazy("blog:list")
-
