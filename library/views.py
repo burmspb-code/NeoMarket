@@ -1,9 +1,29 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Book
+from .models import Author, Book
+from .forms import AuthorForm, BookForm
 
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
+
+class AuthorsListView(ListView):
+    model = Author
+    template_name = "library/authors_list.html"
+    context_object_name = "authors"
+
+
+class AuthorCreateView(CreateView):
+    model = Author
+    form_class = AuthorForm
+    template_name = "library/author_form.html"
+    success_url = reverse_lazy("library:authors_list")
+
+
+class AuthorUpdateView(UpdateView):
+    model = Author
+    form_class = AuthorForm
+    template_name = "libary/author_form.html"
+    success_url =reverse_lazy("library:authors_list")
 
 
 class BooksListView(ListView):
@@ -14,7 +34,7 @@ class BooksListView(ListView):
 
 class BookCreateView(CreateView):
     model = Book
-    fields = "__all__"
+    form_class = BookForm
     template_name = "library/book_form.html"
     success_url = reverse_lazy("library:books_list")
 
@@ -27,7 +47,7 @@ class BookDetailView(DetailView):
 
 class BookUpdateView(UpdateView):
     model = Book
-    fields = "__all__"
+    form_class = BookForm
     template_name = "library/book_form.html"
     success_url = reverse_lazy("library:books_list")
 
