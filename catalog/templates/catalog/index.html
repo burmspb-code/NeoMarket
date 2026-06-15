@@ -54,19 +54,17 @@
             <p class="text-muted">Товары временно отсутствуют.</p>
         </div>
         {% endfor %}
-    </div>
+    </div> <!-- Конец сетки товаров (лишний лишний тег выше удален) -->
 
-        </div> <!-- Конец сетки <div class="row ..."> -->
-
-    <!-- Блок пагинации (переключения страниц) -->
-    {% if products.has_other_pages %}
+    <!-- Блок пагинации (переключения страниц, адаптированный под CBV) -->
+    {% if is_paginated %}
     <nav aria-label="Навигация по страницам" class="mt-5">
         <ul class="pagination justify-content-center">
             
             <!-- Кнопка "Назад" -->
-            {% if products.has_previous %}
+            {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Назад">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Назад">
                         <span aria-hidden="true">&laquo; Назад</span>
                     </a>
                 </li>
@@ -77,8 +75,8 @@
             {% endif %}
 
             <!-- Номера страниц -->
-            {% for num in products.paginator.page_range %}
-                {% if products.number == num %}
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
                     <li class="page-item active" aria-current="page">
                         <span class="page-link bg-primary border-primary">{{ num }}</span>
                     </li>
@@ -90,9 +88,9 @@
             {% endfor %}
 
             <!-- Кнопка "Вперед" -->
-            {% if products.has_next %}
+            {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Вперед">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Вперед">
                         <span aria-hidden="true">Вперед &raquo;</span>
                     </a>
                 </li>

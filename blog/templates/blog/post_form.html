@@ -1,0 +1,50 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{% if object %}Редактирование статьи{% else %}Новая статья{% endif %} — NeoMarket{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 p-4">
+                <h1 class="h3 fw-bold text-dark text-center mb-4">
+                    {% if object %}Редактировать статью «{{ object.title }}»{% else %}Написать новую статью{% endif %}
+                </h1>
+                
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">
+                                {{ field.label }}
+                            </label>
+                            {% if field.field.widget.input_type == "checkbox" %}
+                                <div class="form-check">
+                                    {{ field }}
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold py-2">Сохранить статью</button>
+                        <a href="{% url 'blog:list' %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Динамическая стилизация инпутов Bootstrap через JavaScript для сохранения лаконичности шаблона -->
+<script>
+    document.querySelectorAll('input[type="text"], textarea, input[type="file"]').forEach(el => el.classList.add('form-control'));
+    document.querySelectorAll('input[type="checkbox"]').forEach(el => el.classList.add('form-check-input'));
+</script>
+{% endblock %}

@@ -17,6 +17,27 @@
     <!-- Подключаем шапку сайта (Навигацию) из подшаблона -->
     {% include 'catalog/includes/navbar.html' %}
 
+    <!-- Контейнер для всплывающих уведомлений Django -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm border-0" role="alert">
+                    {% if message.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                    {% endif %}
+                    
+                    {{ message }}
+                    
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <!-- Основной контент страницы -->
     <div class="flex-grow-1">
         {% block content %}

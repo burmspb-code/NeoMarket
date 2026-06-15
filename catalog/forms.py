@@ -6,7 +6,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         # Добавили 'category' в список отображаемых полей
-        fields = ["name", "category", "description", "image", "price"]
+        fields = "__all__"
 
         # Настройка Bootstrap-стилей для всех полей формы
         widgets = {
