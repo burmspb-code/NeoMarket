@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
 from django.contrib import messages
 
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
@@ -7,7 +7,7 @@ from catalog.models import Product
 from .forms import ProductForm
 
 
-# Логика для главной страницы спагинацией
+# Логика для главной страницы с пагинацией
 class HomeListView(ListView):
     model = Product
     template_name = "catalog/index.html"
@@ -49,9 +49,9 @@ class ContactsView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         # Получаем данные из полей формы
-        name = request.POST.get("name")
-        phone = request.POST.get("phone")
-        message = request.POST.get("message")
+        name = request.POST.get("name")  # noqa: F841
+        request.POST.get("phone")
+        message = request.POST.get("message")  # noqa: F841
 
         # Создаем всплывающее уведомление об успехе
         messages.success(
