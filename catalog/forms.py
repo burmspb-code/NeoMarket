@@ -1,11 +1,19 @@
 from django import forms
-from .models import Product
+from django.forms import inlineformset_factory
+from .models import Category, Product, ProductImage
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        # Добавили все поля в отображаемые
+        fields = "__all__"
 
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        # Добавили 'category' в список отображаемых полей
+        # Добавили все поля в отображаемые
         fields = "__all__"
 
         # Настройка Bootstrap-стилей для всех полей формы
@@ -40,3 +48,13 @@ class ProductForm(forms.ModelForm):
             "image": "Фото товара",
             "price": "Стоимость (руб.)",
         }
+
+# Фабрика, которая автоматически создаст чекбоксы DELETE для картинок товара
+ProductImageFormSet = inlineformset_factory(
+    Product, 
+    ProductImage, 
+    fields=['image'], 
+    # Ставим строго 1 пустой слот при загрузке страницы
+    extra=1, 
+    can_delete=True
+)

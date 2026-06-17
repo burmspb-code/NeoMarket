@@ -6,6 +6,9 @@ from catalog.views import (
     CatalogListView,
     ProductDetailView,
     ProductCreateView,
+    ProductUpdateView,
+    ProductDeleteView,
+    ProductDeleteImageView,
 )
 
 app_name = CatalogConfig.name
@@ -21,4 +24,10 @@ urlpatterns = [
     path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
     # Страница с добавлением нового товара
     path("product/add/", ProductCreateView.as_view(), name="product_create"),
+    # Страница для редактирования товара
+    path("product/<int:pk>/edit/", ProductUpdateView.as_view(), name="product_edit"),
+    # Станица для удаления товара
+    path("product/<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"),
+    # Станица для удаления фото товара
+    path("product/<int:pk>/delete-image/", ProductDeleteImageView.as_view(), name="product_delete_image"),
 ]

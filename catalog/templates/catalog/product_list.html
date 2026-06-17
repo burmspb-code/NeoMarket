@@ -15,8 +15,9 @@
                 
                 <!-- Блок для изображения -->
                 <div class="p-3 text-center bg-white rounded-top d-flex align-items-center justify-content-center" style="height: 200px;">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
+                    {% if product.images.all %}
+                        <!-- Выводим первую картинку товара в качестве превью -->
+                        <img src="{{ product.images.all.0.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
                     {% else %}
                         <div class="text-muted text-center">
                             <i class="bi bi-image display-6"></i>
@@ -32,6 +33,12 @@
                         <h5 class="card-title fw-bold text-dark mb-2 text-truncate" title="{{ product.name }}">
                             {{ product.name }}
                         </h5>
+                        <!-- Артикул товара -->
+                        <div class="mb-2">
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                Артикул: <span class="fw-semibold text-secondary">{{ product.sku|default:"Не указан" }}</span>
+                            </small>
+                        </div>
                         
                         <!-- Краткое описание (первые 60 символов) -->
                         <p class="card-text text-muted small mb-3">

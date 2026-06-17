@@ -26,15 +26,14 @@ class Product(models.Model):
         verbose_name="Наименование",
         help_text="Введите наименование товара",
     )
+    sku = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Артикул",
+        help_text="Введите уникальный артикул товара (обязательно)"
+    )
     description = models.TextField(
         verbose_name="Описание", help_text="Введите описание товара"
-    )
-    image = models.ImageField(
-        upload_to="photo/",
-        blank=True,
-        null=True,
-        verbose_name="Фото",
-        help_text="Загрузите фото товара",
     )
     category = models.ForeignKey(
         Category,
@@ -59,3 +58,21 @@ class Product(models.Model):
         verbose_name = "товар"
         verbose_name_plural = "товары"
         ordering = ["-created_at"]
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product, 
+        to_field='sku',
+        on_delete=models.CASCADE, 
+        related_name="images", # Через это имя мы будем выводить список фото
+        verbose_name="Товар"
+    )
+    image = models.ImageField(upload_to="photo/", verbose_name="Фото")
+
+    class Meta:
+        verbose_name = "Фотография товара"
+        verbose_name_plural = "Галерея товара"
+
+    def __str__(self):
+        return f"Фото для товара SKU: {self.product_id}"
