@@ -148,14 +148,11 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById('image-formset-container');
-        // Находим скрытое поле Django, которое хранит общее число полей формы
         const totalFormsInput = document.getElementById('id_images-TOTAL_FORMS');
 
         if (!container || !totalFormsInput) return;
 
-        // ДИНАМИЧЕСКОЕ ДЕЛЕГИРОВАНИЕ СОБЫТИЙ (работает и для новых созданных карточек)
-        
-        // 1. Обработка выбора файла и автоматическое создание следующего слота
+        // Обработка выбора файла и автоматическое создание следующего слота
         container.addEventListener('change', function(e) {
             if (e.target.matches('input[type="file"]')) {
                 const input = e.target;
@@ -180,7 +177,6 @@
                             labelBtn.classList.remove('btn-outline-secondary');
                             labelBtn.classList.add('btn-outline-success');
 
-                            // КЛЮЧЕВОЙ МОМЕНТ: Если файл загружен в ПОСЛЕДНИЙ доступный слот — создаем следующий
                             const allUploadRows = container.querySelectorAll('.image-upload-block');
                             const lastBlock = allUploadRows[allUploadRows.length - 1];
                             
@@ -194,29 +190,27 @@
             }
         });
 
-        // 2. Функция генерации нового пустого слота
         function createNextUploadSlot() {
             const currentFormCount = parseInt(totalFormsInput.value);
             const templateHtml = document.getElementById('empty-form-template').innerHTML;
 
             const newFormHtml = templateHtml.replace(/__prefix__/g, currentFormCount);
 
-            // Создаем элемент и вставляем его в сетку
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = newFormHtml;
             const newRow = tempDiv.firstElementChild;
             
             container.appendChild(newRow);
 
-            // Увеличиваем системный счетчик форм для Django на +1
             totalFormsInput.value = currentFormCount + 1;
         }
 
-        // 3. Обработка клика по крестику для НОВЫХ файлов (Сброс на лету)
+        // Обработка клика по крестику для НОВЫХ файлов (Сброс на лету)
         container.addEventListener('click', function(e) {
             const clearBtn = e.target.closest('.btn-new-clear');
             if (clearBtn) {
                 e.preventDefault();
+                const currentCardRow = clearBtn.closest('.formset-row');
                 const block = clearBtn.closest('.image-upload-block');
                 const input = block.querySelector('input[type="file"]');
                 const defaultInfo = block.querySelector('.preview-default-info');
@@ -224,19 +218,32 @@
                 const labelBtn = block.querySelector('label');
 
                 if (input && imgPreview && defaultInfo && labelBtn) {
-                    input.value = ""; 
-                    imgPreview.src = "";
-                    imgPreview.classList.add('d-none');
-                    defaultInfo.classList.remove('d-none');
-                    clearBtn.classList.add('d-none');
+                    // Считаем, сколько ВСЕГО пустых слотов "Добавить фото" сейчас на экране
+                    const allUploadBlocks = Array.from(container.querySelectorAll('.image-upload-block'));
                     
-                    labelBtn.classList.remove('btn-outline-success');
-                    labelBtn.classList.add('btn-outline-secondary');
+                    // Если пустых слотов больше одного, мы можем полностью удалить эту карточку
+                    if (allUploadBlocks.length > 1) {
+                        currentCardRow.remove(); // Полностью удаляем блок из HTML-разметки
+                        
+                        // Уменьшаем общий счетчик форм Django на -1
+                        const currentFormCount = parseInt(totalFormsInput.value);
+                        totalFormsInput.value = currentFormCount - 1;
+                    } else {
+                        // Если это единственный пустой слот, просто очищаем его содержимое как обычно
+                        input.value = ""; 
+                        imgPreview.src = "";
+                        imgPreview.classList.add('d-none');
+                        defaultInfo.classList.remove('d-none');
+                        clearBtn.classList.add('d-none');
+                        
+                        labelBtn.classList.remove('btn-outline-success');
+                        labelBtn.classList.add('btn-outline-secondary');
+                    }
                 }
             }
         });
 
-        // 4. Обработка клика по крестику для УЖЕ СОХРАНЕННЫХ в базе фото
+        // Обработка клика по крестику для УЖЕ СОХРАНЕННЫХ в базе фото
         container.addEventListener('click', function(e) {
             const savedClearBtn = e.target.closest('.btn-saved-clear');
             if (savedClearBtn) {
