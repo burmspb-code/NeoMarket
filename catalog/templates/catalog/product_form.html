@@ -1,4 +1,5 @@
 {% extends 'catalog/base.html' %}
+{% load static %}
 
 {% block title %}
     {% if product.pk %}Редактирование товара «{{ product.name }}»{% else %}Добавление товара{% endif %} — NeoMarket
@@ -145,139 +146,8 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const container = document.getElementById('image-formset-container');
-        const totalFormsInput = document.getElementById('id_images-TOTAL_FORMS');
+{% endblock %}
 
-        if (!container || !totalFormsInput) return;
-
-        // Обработка выбора файла и автоматическое создание следующего слота
-        container.addEventListener('change', function(e) {
-            if (e.target.matches('input[type="file"]')) {
-                const input = e.target;
-                const file = input.files[0];
-                const block = input.closest('.image-upload-block');
-                
-                if (file && block) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(event) {
-                        const defaultInfo = block.querySelector('.preview-default-info');
-                        const imgPreview = block.querySelector('.img-preview');
-                        const clearBtn = block.querySelector('.btn-new-clear');
-                        const labelBtn = block.querySelector('label');
-                        
-                        if (imgPreview && defaultInfo && clearBtn && labelBtn) {
-                            imgPreview.src = event.target.result;
-                            defaultInfo.classList.add('d-none');
-                            imgPreview.classList.remove('d-none');
-                            clearBtn.classList.remove('d-none');
-                            
-                            labelBtn.classList.remove('btn-outline-secondary');
-                            labelBtn.classList.add('btn-outline-success');
-
-                            const allUploadRows = container.querySelectorAll('.image-upload-block');
-                            const lastBlock = allUploadRows[allUploadRows.length - 1];
-                            
-                            if (block === lastBlock) {
-                                createNextUploadSlot();
-                            }
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        });
-
-        function createNextUploadSlot() {
-            const currentFormCount = parseInt(totalFormsInput.value);
-            const templateHtml = document.getElementById('empty-form-template').innerHTML;
-
-            const newFormHtml = templateHtml.replace(/__prefix__/g, currentFormCount);
-
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = newFormHtml;
-            const newRow = tempDiv.firstElementChild;
-            
-            container.appendChild(newRow);
-
-            totalFormsInput.value = currentFormCount + 1;
-        }
-
-        // Обработка клика по крестику для НОВЫХ файлов (Сброс на лету)
-        container.addEventListener('click', function(e) {
-            const clearBtn = e.target.closest('.btn-new-clear');
-            if (clearBtn) {
-                e.preventDefault();
-                const currentCardRow = clearBtn.closest('.formset-row');
-                const block = clearBtn.closest('.image-upload-block');
-                const input = block.querySelector('input[type="file"]');
-                const defaultInfo = block.querySelector('.preview-default-info');
-                const imgPreview = block.querySelector('.img-preview');
-                const labelBtn = block.querySelector('label');
-
-                if (input && imgPreview && defaultInfo && labelBtn) {
-                    // Считаем, сколько ВСЕГО пустых слотов "Добавить фото" сейчас на экране
-                    const allUploadBlocks = Array.from(container.querySelectorAll('.image-upload-block'));
-                    
-                    // Если пустых слотов больше одного, мы можем полностью удалить эту карточку
-                    if (allUploadBlocks.length > 1) {
-                        currentCardRow.remove(); // Полностью удаляем блок из HTML-разметки
-                        
-                        // Уменьшаем общий счетчик форм Django на -1
-                        const currentFormCount = parseInt(totalFormsInput.value);
-                        totalFormsInput.value = currentFormCount - 1;
-                    } else {
-                        // Если это единственный пустой слот, просто очищаем его содержимое как обычно
-                        input.value = ""; 
-                        imgPreview.src = "";
-                        imgPreview.classList.add('d-none');
-                        defaultInfo.classList.remove('d-none');
-                        clearBtn.classList.add('d-none');
-                        
-                        labelBtn.classList.remove('btn-outline-success');
-                        labelBtn.classList.add('btn-outline-secondary');
-                    }
-                }
-            }
-        });
-
-        // Обработка клика по крестику для УЖЕ СОХРАНЕННЫХ в базе фото
-        container.addEventListener('click', function(e) {
-            const savedClearBtn = e.target.closest('.btn-saved-clear');
-            if (savedClearBtn) {
-                e.preventDefault();
-                
-                const checkboxId = savedClearBtn.getAttribute('data-checkbox-id');
-                const nativeCheckbox = document.getElementById(checkboxId);
-                const cardContainer = savedClearBtn.closest('.card');
-                const imgWrapper = cardContainer.querySelector('.img-saved-wrapper');
-
-                if (nativeCheckbox && cardContainer && imgWrapper) {
-                    nativeCheckbox.checked = !nativeCheckbox.checked;
-
-                    if (nativeCheckbox.checked) {
-                        imgWrapper.style.opacity = '0.2';
-                        cardContainer.classList.remove('bg-light');
-                        cardContainer.style.backgroundColor = '#fde8e8';
-                        cardContainer.style.borderColor = '#f8b4b4';
-                        savedClearBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise fs-6"></i>';
-                        savedClearBtn.classList.remove('btn-danger');
-                        savedClearBtn.classList.add('btn-secondary');
-                    } else {
-                        imgWrapper.style.opacity = '1';
-                        cardContainer.style.backgroundColor = '';
-                        cardContainer.style.borderColor = '';
-                        cardContainer.classList.add('bg-light');
-                        savedClearBtn.innerHTML = '<i class="bi bi-x fs-6"></i>';
-                        savedClearBtn.classList.remove('btn-secondary');
-                        savedClearBtn.classList.add('btn-danger');
-                    }
-                }
-            }
-        });
-    });
-</script>
-
+{% block scripts %}
+    <script src="{% static 'catalog/js/product_gallery.js' %}"></script>
 {% endblock %}
