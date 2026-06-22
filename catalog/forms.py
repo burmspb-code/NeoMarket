@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.forms import inlineformset_factory
 from .models import Category, Product, ProductImage
@@ -11,6 +13,12 @@ class CategoryForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
+
+    # Запрещенные слова
+    FORBIDDEN_WORDS = [
+        "казино", "криптовалюта", "крипта", "биржа", "дешево", "бесплатно", "обман", "полиция", "радар"
+    ]
+
     # Переопределяем поле для категории
     category = forms.ModelChoiceField(
     queryset=Category.objects.all(),
@@ -53,6 +61,29 @@ class ProductForm(forms.ModelForm):
             "price": "Стоимость (руб.)",
         }
 
+    def clean_name(self):
+        """Валидация поля названия товара."""
+        name = self.cleaned_data.get('name')
+        self._validate_text(name)
+        return name
+    
+    def clean_description(self):
+        """Валидация поля описания товара."""
+        description = self.cleaned_data.get('description')
+        self._validate_text(description)
+        return description
+
+    def _validate_text(self, text):
+        """Вспомогательный метод для проверки текста на запрещенные слова."""
+        if text:
+            words_in_text = re.findall(r'\b\w+[-]?\w*\b', text.lower())
+            for word in self.FORBIDDEN_WORDS:
+                if word in words_in_text:
+                    raise forms.ValidationError(
+                        f"Использование слова {word} запрещено в целях безопасности."
+                    )
+
+
 # Автоматическое создание чекбоксов для картинок товара
 ProductImageFormSet = inlineformset_factory(
     Product, 
@@ -62,3 +93,4 @@ ProductImageFormSet = inlineformset_factory(
     extra=1, 
     can_delete=True
 )
+

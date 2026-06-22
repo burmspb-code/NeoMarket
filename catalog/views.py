@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.views import View
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
@@ -45,7 +46,7 @@ class ProductDeleteView(DeleteView):
 
 
 # Логика для добавления нового товара
-class ProductCreateView(CreateView):
+class ProductCreateView(SuccessMessageMixin, CreateView):
     model = Product
     context_object_name = "product"
     form_class = ProductForm
@@ -54,7 +55,7 @@ class ProductCreateView(CreateView):
 
 
 # Логика для редактирования товара
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(SuccessMessageMixin, UpdateView):
     model = Product
     form_class = ProductForm
     context_object_name = "product"
@@ -81,7 +82,8 @@ class ProductUpdateView(UpdateView):
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
-            return redirect(self.get_success_url())
+            # Вызываем родительский метод, чтобы SuccessMessageMixin зафиксировал сообщение
+            return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
