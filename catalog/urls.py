@@ -27,7 +27,13 @@ urlpatterns = [
     # Страница для редактирования товара
     path("product/<int:pk>/edit/", ProductUpdateView.as_view(), name="product_edit"),
     # Станица для удаления товара
-    path("product/<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"),
+    path(
+        "product/<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"
+    ),
     # Станица для удаления фото товара
-    path("product/<int:pk>/delete-image/", ProductDeleteImageView.as_view(), name="product_delete_image"),
+    path(
+        "product/<int:pk>/delete-image/",
+        ProductDeleteImageView.as_view(),
+        name="product_delete_image",
+    ),
 ]

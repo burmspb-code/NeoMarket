@@ -26,12 +26,11 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     # Добавляем get_sku в список отображаемых колонок таблицы
-    list_display = ('id', 'product', 'get_sku', 'image')
-    list_filter = ('product',)
-    
+    list_display = ("id", "product", "get_sku", "image")
+    list_filter = ("product",)
+
     # Кастомный метод, который вытаскивает артикул связанного товара
-    @admin.display(ordering='product__sku', description='Артикул товара')
+    @admin.display(ordering="product__sku", description="Артикул товара")
     def get_sku(self, obj):
         # Проверяем, привязан ли товар, чтобы не вызвать ошибку
         return obj.product.sku if obj.product else "Не указан"
-    

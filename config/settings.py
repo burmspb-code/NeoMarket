@@ -71,7 +71,7 @@ DATABASES = {
         "OPTIONS": {
             "sslmode": "disable",  # Отключаем проверку SSL Windows, которая рвет сессию
         },
-        "CONN_MAX_AGE": 0,         # Мгновенно освобождаем пулер Supabase
+        "CONN_MAX_AGE": 0,  # Мгновенно освобождаем пулер Supabase
     }
 }
 

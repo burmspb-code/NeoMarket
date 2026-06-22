@@ -38,7 +38,29 @@
                     <!-- ДИНАМИЧЕСКАЯ ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ ТОВАРА -->
                     {% if image_formset %}
                         <h3 class="h5 fw-bold text-dark mt-4 mb-3">Галерея изображений товара</h3>
-                        
+
+                        <!-- Сюда JavaScript будет мгновенно выводить ошибку без перезагрузки страницы -->
+                        <div id="js-gallery-error" class="alert alert-danger d-flex align-items-center shadow-sm mb-4 rounded-3 d-none" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
+                            <div>
+                                <h4 class="alert-heading h6 fw-bold mb-1">Ошибка выбора изображения</h4>
+                                <p class="small m-0 text-secondary" id="js-error-text"></p>
+                            </div>
+                        </div>
+
+                        <!-- Вывод ошибок валидации картинок над галереей -->
+                        {% if image_formset.errors %}
+                            <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4 rounded-3" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
+                                <div>
+                                    <h4 class="alert-heading h6 fw-bold mb-1">Ошибка загрузки изображений</h4>
+                                    <p class="small m-0 text-secondary">
+                                        Один или несколько файлов не были загружены. Убедитесь, что все фото имеют формат <strong>JPEG или PNG</strong> и размер <strong>до 5 МБ</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+
                         {{ image_formset.management_form }}
 
                         <!-- Добавили id="image-formset-container" для поиска сетки через JS -->
@@ -63,7 +85,10 @@
                                             </button>
 
                                             <div class="d-flex align-items-center justify-content-center flex-grow-1 my-auto img-saved-wrapper">
-                                                <img src="{{ img_form.instance.image.url }}" class="img-thumbnail" style="max-height: 80px; object-fit: contain;">
+                                                <img src="{{ img_form.instance.image.url }}"
+                                                     class="img-thumbnail"
+                                                     style="max-height: 80px; object-fit: contain;"
+                                                     alt="Сохраненное изображение товара">
                                             </div>
                                         {% else %}
                                             <!-- Пустой слот для добавления фото (Новый или Extra) -->
@@ -79,22 +104,16 @@
                                                     {{ img_form.image }}
                                                 </div>
                                                 <label for="{{ img_form.image.id_for_label }}" class="btn btn-sm btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center border-dashed py-2 m-0" style="border-style: dashed; cursor: pointer; min-height: 110px;">
-                                                    
-                                                    <div class="preview-default-info text-center">
+                                                    <span class="preview-default-info text-center d-block">
                                                         <i class="bi bi-plus-circle fs-4 mb-1 text-muted d-block"></i>
                                                         <span class="small fw-semibold text-muted text-wrap">Добавить фото</span>
-                                                    </div>
-                                                    
-                                                    <img src="" class="img-thumbnail d-none img-preview" style="max-height: 80px; object-fit: contain;">
+                                                    </span>
+
+                                                    <img src="" class="img-thumbnail d-none img-preview" style="max-height: 80px; object-fit: contain;" alt="Превью">
                                                 </label>
                                             </div>
                                         {% endif %}
 
-                                        {% if img_form.image.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {{ img_form.image.errors|striptags }}
-                                            </div>
-                                        {% endif %}
                                     </div>
                                 </div>
                             {% endfor %}
@@ -113,11 +132,11 @@
                                             {{ image_formset.empty_form.image }}
                                         </div>
                                         <label for="{{ image_formset.empty_form.image.id_for_label }}" class="btn btn-sm btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center border-dashed py-2 m-0" style="border-style: dashed; cursor: pointer; min-height: 110px;">
-                                            <div class="preview-default-info text-center">
+                                            <span class="preview-default-info text-center d-block">
                                                 <i class="bi bi-plus-circle fs-4 mb-1 text-muted d-block"></i>
                                                 <span class="small fw-semibold text-muted text-wrap">Добавить фото</span>
-                                            </div>
-                                            <img src="" class="img-thumbnail d-none img-preview" style="max-height: 80px; object-fit: contain;">
+                                            </span>
+                                            <img src="" class="img-thumbnail d-none img-preview" style="max-height: 80px; object-fit: contain;" alt="Превью нового файла">
                                         </label>
                                     </div>
                                 </div>

@@ -3,7 +3,14 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views import View
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+    TemplateView,
+)
 from django.urls import reverse_lazy
 from catalog.models import Product
 from .forms import ProductForm, ProductImageFormSet
@@ -17,7 +24,7 @@ class HomeListView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-         return Product.objects.all().prefetch_related('images').order_by("id")
+        return Product.objects.all().prefetch_related("images").order_by("id")
 
 
 # Логика для страницы каталога
@@ -26,7 +33,7 @@ class CatalogListView(ListView):
     context_object_name = "products"
 
     def get_queryset(self):
-        return Product.objects.all().prefetch_related('images').order_by("id")
+        return Product.objects.all().prefetch_related("images").order_by("id")
 
 
 # Логика для страницы описания товара
@@ -35,7 +42,7 @@ class ProductDetailView(DetailView):
     context_object_name = "product"
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('images')
+        return super().get_queryset().prefetch_related("images")
 
 
 # Логика удаления товара
@@ -65,19 +72,17 @@ class ProductUpdateView(SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['image_formset'] = ProductImageFormSet(
-                self.request.POST, 
-                self.request.FILES, 
-                instance=self.object
+            context["image_formset"] = ProductImageFormSet(
+                self.request.POST, self.request.FILES, instance=self.object
             )
         else:
-            context['image_formset'] = ProductImageFormSet(instance=self.object)
+            context["image_formset"] = ProductImageFormSet(instance=self.object)
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
-        image_formset = context['image_formset']
-        
+        image_formset = context["image_formset"]
+
         if form.is_valid() and image_formset.is_valid():
             self.object = form.save()
             image_formset.instance = self.object
@@ -92,14 +97,14 @@ class ProductUpdateView(SuccessMessageMixin, UpdateView):
 class ProductDeleteImageView(View):
     def post(self, request, pk, *args, **kwargs):
         product = get_object_or_404(Product, pk=pk)
-        
+
         first_image = product.images.first()
         if first_image:
             if first_image.image:
-                first_image.image.delete(save=False) # Физически стираем файл
-            first_image.delete() # Удаляем запись из таблицы ProductImage
+                first_image.image.delete(save=False)  # Физически стираем файл
+            first_image.delete()  # Удаляем запись из таблицы ProductImage
             messages.success(request, "Фотография товара успешно удалена!")
-            
+
         return redirect("catalog:product_edit", pk=pk)
 
 

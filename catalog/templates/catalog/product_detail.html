@@ -33,10 +33,16 @@
                         <div id="productCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
                             
                             <!-- Индикаторы (точки) снизу слайдера, если картинок больше одной -->
-                            {% if product.images.all|length > 1 %}
+                            {% if product.images.count > 1 %}
                                 <div class="carousel-indicators" style="margin-bottom: -10px;">
                                     {% for img in product.images.all %}
-                                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Слайд {{ forloop.counter }}"></button>
+                                        <button type="button"
+                                                data-bs-target="#productCarousel"
+                                                data-bs-slide-to="{{ forloop.counter0 }}"
+                                                class="{{ forloop.first|yesno:'active,' }}"
+                                                aria-current="{{ forloop.first|yesno:'true,false' }}"
+                                                aria-label="Слайд {{ forloop.counter }}">
+                                        </button>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -51,7 +57,7 @@
                             </div>
 
                             <!-- Стрелки управления "Вперед/Назад", если картинок больше одной -->
-                            {% if product.images.all|length > 1 %}
+                            {% if product.images.count > 1 %}
                                 <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Назад</span>

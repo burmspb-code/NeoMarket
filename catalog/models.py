@@ -30,7 +30,7 @@ class Product(models.Model):
         max_length=50,
         unique=True,
         verbose_name="Артикул",
-        help_text="Введите уникальный артикул товара (обязательно)"
+        help_text="Введите уникальный артикул товара (обязательно)",
     )
     description = models.TextField(
         verbose_name="Описание", help_text="Введите описание товара"
@@ -62,11 +62,11 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(
-        Product, 
-        to_field='sku',
-        on_delete=models.CASCADE, 
-        related_name="images", # Через это имя мы будем выводить список фото
-        verbose_name="Товар"
+        Product,
+        to_field="sku",
+        on_delete=models.CASCADE,
+        related_name="images",  # Через это имя мы будем выводить список фото
+        verbose_name="Товар",
     )
     image = models.ImageField(upload_to="photo/", verbose_name="Фото")
 
