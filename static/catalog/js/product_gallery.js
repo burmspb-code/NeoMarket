@@ -8,10 +8,33 @@ document.addEventListener("DOMContentLoaded", function() {
     container.addEventListener('change', function(e) {
         if (e.target.matches('input[type="file"]')) {
             const input = e.target;
-            const file = input.files[0];
+            const file = input.files[0]; // Важно: берем первый файл из массива [0]
             const block = input.closest('.image-upload-block');
             
             if (file && block) {
+                // --- ВАЛИДАЦИЯ ФАЙЛА НА КЛИЕНТЕ ---
+                const validExtensions = ['jpg', 'jpeg', 'png'];
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                const maxSize = 5 * 1024 * 1024; // 5 Мегабайт
+
+                // Проверяем расширение
+                if (!validExtensions.includes(fileExt)) {
+                    showJsError(`Файл "${file.name}" имеет недопустимый формат. Разрешены только JPG, JPEG, PNG.`);
+                    input.value = ""; // Полностью очищаем этот инпут (минусуем плохой файл)
+                    return; // Прерываем выполнение: превью не строится, новый чекбокс НЕ создается
+                }
+
+                // Проверяем размер
+                if (file.size > maxSize) {
+                    showJsError(`Размер файла "${file.name}" превышает 5 МБ. Пожалуйста, выберите другое изображение.`);
+                    input.value = ""; // Полностью очищаем этот инпут (минусуем плохой файл)
+                    return; // Прерываем выполнение: превью не строится, новый чекбокс НЕ создается
+                }
+
+                // Если всё отлично, скрываем старое сообщение об ошибке
+                hideJsError();
+                // --- КОНЕЦ ВАЛИДАЦИИ ---
+
                 const reader = new FileReader();
                 
                 reader.onload = function(event) {
@@ -167,3 +190,20 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+// Функции для управления блоком ошибок на странице
+    function showJsError(message) {
+        const errorAlert = document.getElementById('js-gallery-error');
+        const errorText = document.getElementById('js-error-text');
+        if (errorAlert && errorText) {
+            errorText.innerText = message;
+            errorAlert.classList.remove('d-none');
+        }
+    }
+
+    function hideJsError() {
+        const errorAlert = document.getElementById('js-gallery-error');
+        if (errorAlert) {
+            errorAlert.classList.add('d-none');
+        }
+    }
