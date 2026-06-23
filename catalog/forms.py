@@ -77,7 +77,7 @@ class ProductForm(forms.ModelForm):
     def _validate_text(self, text):
         """Вспомогательный метод для проверки текста на запрещенные слова."""
         if text:
-            words_in_text = re.findall(r"\b\w+-?\w*\b", text.lower())
+            words_in_text = set(re.findall(r"\b\w+-?\w*\b", text.lower()))
             for word in self.FORBIDDEN_WORDS:
                 if word in words_in_text:
                     raise forms.ValidationError(
@@ -111,21 +111,15 @@ class ProductImageForm(forms.ModelForm):
         if not image:
             return image
 
-        # 1. Безопасно достаем имя файла, разворачивая кортежи/списки любой вложенности
+        # Безопасно достаем имя файла (убран опасный бесконечный цикл)
         file_name = getattr(image, "name", "")
-
-        # Если пришел кортеж или список, берем из него первый элемент, пока не дойдем до строки
-        while isinstance(file_name, (tuple, list)):
-            if file_name:
-                file_name = file_name[0]
-            else:
-                file_name = ""
-                break
+        if isinstance(file_name, (tuple, list)) and file_name:
+            file_name = file_name[0]
 
         # Приводим к строке и берем только базовое имя файла (убираем пути вроде photo/)
         file_name = os.path.basename(str(file_name))
 
-        # 2. Извлекаем расширение файла (теперь там гарантированно строка вроде '.jpg')
+        # Извлекаем расширение файла (теперь там гарантированно строка вроде '.jpg')
         ext = os.path.splitext(file_name)[1].lower()
         valid_extensions = [".jpg", ".jpeg", ".png"]
 
@@ -134,7 +128,7 @@ class ProductImageForm(forms.ModelForm):
                 "Допускаются только изображения с расширением JPG, JPEG или PNG."
             )
 
-        # 3. Проверяем размер и MIME-тип ТОЛЬКО для новых загружаемых файлов
+        # Проверяем размер и MIME-тип ТОЛЬКО для новых загружаемых файлов
         if hasattr(image, "file") and not isinstance(image, ImageFieldFile):
             # Проверка размера (5 МБ)
             max_size = 5 * 1024 * 1024
