@@ -60,6 +60,34 @@ class ProductCreateView(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy("catalog:catalog_list")
     success_message = "Новый товар успешно добавлен в каталог!"
 
+    # Передаем пустой формсет в контекст страницы добавления
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["image_formset"] = ProductImageFormSet(
+                self.request.POST, self.request.FILES
+            )
+        else:
+            context["image_formset"] = ProductImageFormSet()
+        return context
+
+    # Валидируем и сохраняем картинки вместе с созданным товаром
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context["image_formset"]
+
+        if form.is_valid() and image_formset.is_valid():
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            # ИСПРАВЛЕНО: передаем в шаблон именно тот объект image_formset, который содержит ошибки!
+            return self.render_to_response({
+                'form': form,
+                'image_formset': image_formset,
+                'product': self.object
+            })
 
 # Логика для редактирования товара
 class ProductUpdateView(SuccessMessageMixin, UpdateView):

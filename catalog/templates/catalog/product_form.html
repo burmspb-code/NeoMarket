@@ -16,7 +16,7 @@
                 <!-- Форма отправки данных -->
                 <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
-                    
+
                     <!-- Вывод полей формы циклом (название, артикул, описание, стоимость) -->
                     {% for field in form %}
                         <div class="mb-3">
@@ -25,7 +25,7 @@
                             </label>
 
                             {{ field }}
-                            
+
                             <!-- Вывод ошибок валидации поля, если они есть -->
                             {% if field.errors %}
                                 <div class="text-danger small mt-1">
@@ -49,17 +49,22 @@
                         </div>
 
                         <!-- Вывод ошибок валидации картинок над галереей -->
-                        {% if image_formset.errors %}
-                            <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4 rounded-3" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
-                                <div>
-                                    <h4 class="alert-heading h6 fw-bold mb-1">Ошибка загрузки изображений</h4>
-                                    <p class="small m-0 text-secondary">
-                                        Один или несколько файлов не были загружены. Убедитесь, что все фото имеют формат <strong>JPEG или PNG</strong> и размер <strong>до 5 МБ</strong>.
-                                    </p>
+                        {% for form in image_formset %} {# ИСПРАВЛЕНО: теперь имя переменной совпадает с views.py #}
+                            {% if form.image.errors %}
+                                <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4 rounded-3" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
+                                    <div>
+                                        <h4 class="alert-heading h6 fw-bold mb-1">Ошибка загрузки изображений</h4>
+                                        <p class="small m-0 text-dark">
+                                            {# Цикл выведет настоящую причину: например, 'Размер нового файла не должен превышать 5 МБ.' #}
+                                            {% for error in form.image.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        {% endfor %}
 
                         {{ image_formset.management_form }}
 
@@ -68,7 +73,7 @@
                             {% for img_form in image_formset %}
                                 <div class="col formset-row">
                                     <div class="card h-100 bg-light border p-2 text-center d-flex flex-column justify-content-between position-relative" style="min-height: 160px;">
-                                        
+
                                         {{ img_form.id }}
 
                                         {% if img_form.instance.pk and img_form.instance.image %}
@@ -77,9 +82,9 @@
                                                 {{ img_form.DELETE }}
                                             </div>
 
-                                            <button type="button" class="btn btn-danger btn-sm p-0 position-absolute rounded-circle btn-saved-clear" 
+                                            <button type="button" class="btn btn-danger btn-sm p-0 position-absolute rounded-circle btn-saved-clear"
                                                     data-checkbox-id="{{ img_form.DELETE.id_for_label }}"
-                                                    style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;" 
+                                                    style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;"
                                                     title="Удалить фото">
                                                 <i class="bi bi-x fs-6"></i>
                                             </button>
@@ -93,9 +98,9 @@
                                         {% else %}
                                             <!-- Пустой слот для добавления фото (Новый или Extra) -->
                                             <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 p-1 w-100 h-100 image-upload-block">
-                                                
-                                                <button type="button" class="btn btn-danger btn-sm p-0 d-none position-absolute rounded-circle btn-new-clear" 
-                                                        style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;" 
+
+                                                <button type="button" class="btn btn-danger btn-sm p-0 d-none position-absolute rounded-circle btn-new-clear"
+                                                        style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;"
                                                         title="Убрать файл">
                                                     <i class="bi bi-x fs-6"></i>
                                                 </button>
@@ -159,7 +164,7 @@
                         </a>
                     </div>
                 </form>
-                
+
             </div>
         </div>
     </div>
@@ -168,5 +173,8 @@
 {% endblock %}
 
 {% block scripts %}
+    <!-- Скрипт для превью -->
     <script src="{% static 'catalog/js/product_gallery.js' %}"></script>
+    <!-- Скрипт для валидации галереи (который мы добавляем) -->
+    <script src="{% static 'catalog/js/product_preview.js' %}"></script>
 {% endblock %}
