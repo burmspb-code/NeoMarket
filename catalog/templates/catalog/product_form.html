@@ -173,6 +173,9 @@
 {% endblock %}
 
 {% block scripts %}
+    <!-- Сначала загружаем библиотеку SweetAlert2 (стили и скрипт) -->
+    <link rel="stylesheet" href="{% static 'catalog/css/sweetalert2.min.css' %}">
+    <script src="{% static 'catalog/js/sweetalert2.all.min.js' %}"></script>
     <!-- Скрипт для превью -->
     <script src="{% static 'catalog/js/product_gallery.js' %}"></script>
     <!-- Скрипт для валидации галереи (который мы добавляем) -->

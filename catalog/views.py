@@ -83,11 +83,10 @@ class ProductCreateView(SuccessMessageMixin, CreateView):
             return super().form_valid(form)
         else:
             # ИСПРАВЛЕНО: передаем в шаблон именно тот объект image_formset, который содержит ошибки!
-            return self.render_to_response({
-                'form': form,
-                'image_formset': image_formset,
-                'product': self.object
-            })
+            return self.render_to_response(
+                {"form": form, "image_formset": image_formset, "product": self.object}
+            )
+
 
 # Логика для редактирования товара
 class ProductUpdateView(SuccessMessageMixin, UpdateView):

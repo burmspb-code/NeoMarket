@@ -1,0 +1,66 @@
+[
+{
+    "model": "catalog.productimage",
+    "pk": 5,
+    "fields": {
+        "product": "4025",
+        "image": "photo/4025.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 6,
+    "fields": {
+        "product": "А1416",
+        "image": "photo/А1416.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 7,
+    "fields": {
+        "product": "А1351",
+        "image": "photo/А1351.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 8,
+    "fields": {
+        "product": "4058",
+        "image": "photo/4058.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 10,
+    "fields": {
+        "product": "4025",
+        "image": "photo/4025_1.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 11,
+    "fields": {
+        "product": "4005",
+        "image": "photo/4005_vm3N9Ai.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 12,
+    "fields": {
+        "product": "4005",
+        "image": "photo/4005_1.jpg"
+    }
+},
+{
+    "model": "catalog.productimage",
+    "pk": 13,
+    "fields": {
+        "product": "4006",
+        "image": "photo/4006.jpg"
+    }
+}
+]

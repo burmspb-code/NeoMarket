@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Код перехватчика
-    // Самый надежный перехват галереи
     const galleryContainer = document.getElementById('image-formset-container');
 
     if (galleryContainer) {
@@ -114,8 +113,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     const isImage = lowerPath.endsWith('.jpg') || lowerPath.endsWith('.jpeg') || lowerPath.endsWith('.png');
 
                     if (!isImage) {
-                        console.error("❌ Обнаружен запрещенный файл в пути:", currentPath);
-                        alert("Ошибка! Вы выбрали недопустимый формат файла.\n\nРазрешены только изображения (JPG, JPEG, PNG).\nФайлы PDF, документы и программы загружать ЗАПРЕЩЕНО.");
+                        // КРАСИВОЕ ОКНО ОШИБКИ ФОРМАТА
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Недопустимый формат файла!',
+                            html: 'Разрешены только изображения <b>JPG, JPEG, PNG</b>.<br><br><span style="color: #dc3545;">Файлы PDF, документы и программы загружать ЗАПРЕЩЕНО.</span>',
+                            confirmButtonText: 'ОК',
+                            confirmButtonColor: '#0d6efd'
+                        });
 
                         input.value = ""; // Очищаем поле сами
                         e.stopImmediatePropagation(); // Полностью блокируем превью и другие скрипты
@@ -130,7 +135,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     const maxSize = 5 * 1024 * 1024; // 5 МБ
 
                     if (file.size > maxSize) {
-                        alert("Ошибка! Размер файла \"" + file.name + "\" превышает 5 МБ. Пожалуйста, сожмите изображение.");
+                        // КРАСИВОЕ ОКНО ОШИБКИ РАЗМЕРА
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Файл слишком большой',
+                            text: `Размер файла "${file.name}" превышает 5 МБ. Пожалуйста, сожмите изображение.`,
+                            confirmButtonText: 'Понятно',
+                            confirmButtonColor: '#0d6efd'
+                        });
                         input.value = "";
                         e.stopImmediatePropagation();
                         e.preventDefault();
@@ -138,7 +150,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 } else if (!currentPath) {
                     // Если сработал change, но всё абсолютно пусто — значит браузер молча стер PDF
-                    alert("Ошибка! Выбран недопустимый формат файла (например, PDF).\nПожалуйста, выбирайте только картинки в формате JPG или PNG.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ошибка выбора файла',
+                        text: 'Выбран недопустимый формат файла (например, PDF). Пожалуйста, выбирайте только картинки в формате JPG или PNG.',
+                        confirmButtonText: 'ОК',
+                        confirmButtonColor: '#0d6efd'
+                    });
                     e.stopImmediatePropagation();
                     e.preventDefault();
                     return false;
