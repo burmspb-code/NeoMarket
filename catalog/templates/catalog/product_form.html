@@ -1,25 +1,31 @@
 {% extends 'catalog/base.html' %}
+{% load static %}
 
-{% block title %}Добавление товара — NeoMarket{% endblock %}
+{% block title %}
+    {% if product.pk %}Редактирование товара «{{ product.name }}»{% else %}Добавление товара{% endif %} — NeoMarket
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card shadow-sm border-0 p-4">
-                <h1 class="h3 fw-bold text-dark text-center mb-4">Добавить новый товар</h1>
-                
+                <h1 class="h3 fw-bold text-dark text-center mb-4">
+                    {% if product.pk %}Редактировать товар{% else %}Добавить новый товар{% endif %}
+                </h1>
                 <!-- Форма отправки данных -->
                 <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
-                    
-                    <!-- Вывод полей формы циклом -->
+
+                    <!-- Вывод полей формы циклом (название, артикул, описание, стоимость) -->
                     {% for field in form %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">
                                 {{ field.label }}
                             </label>
+
                             {{ field }}
+
                             <!-- Вывод ошибок валидации поля, если они есть -->
                             {% if field.errors %}
                                 <div class="text-danger small mt-1">
@@ -28,20 +34,150 @@
                             {% endif %}
                         </div>
                     {% endfor %}
-                    
+
+                    <!-- ДИНАМИЧЕСКАЯ ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ ТОВАРА -->
+                    {% if image_formset %}
+                        <h3 class="h5 fw-bold text-dark mt-4 mb-3">Галерея изображений товара</h3>
+
+                        <!-- Сюда JavaScript будет мгновенно выводить ошибку без перезагрузки страницы -->
+                        <div id="js-gallery-error" class="alert alert-danger d-flex align-items-center shadow-sm mb-4 rounded-3 d-none" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
+                            <div>
+                                <h4 class="alert-heading h6 fw-bold mb-1">Ошибка выбора изображения</h4>
+                                <p class="small m-0 text-secondary" id="js-error-text"></p>
+                            </div>
+                        </div>
+
+                        <!-- Вывод ошибок валидации картинок над галереей -->
+                        {% for form in image_formset %} {# ИСПРАВЛЕНО: теперь имя переменной совпадает с views.py #}
+                            {% if form.image.errors %}
+                                <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4 rounded-3" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
+                                    <div>
+                                        <h4 class="alert-heading h6 fw-bold mb-1">Ошибка загрузки изображений</h4>
+                                        <p class="small m-0 text-dark">
+                                            {# Цикл выведет настоящую причину: например, 'Размер нового файла не должен превышать 5 МБ.' #}
+                                            {% for error in form.image.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {{ image_formset.management_form }}
+
+                        <!-- Добавили id="image-formset-container" для поиска сетки через JS -->
+                        <div class="row row-cols-1 row-cols-sm-3 g-3 mb-4" id="image-formset-container">
+                            {% for img_form in image_formset %}
+                                <div class="col formset-row">
+                                    <div class="card h-100 bg-light border p-2 text-center d-flex flex-column justify-content-between position-relative" style="min-height: 160px;">
+
+                                        {{ img_form.id }}
+
+                                        {% if img_form.instance.pk and img_form.instance.image %}
+                                            <!-- Сохраненная картинка -->
+                                            <div class="d-none">
+                                                {{ img_form.DELETE }}
+                                            </div>
+
+                                            <button type="button" class="btn btn-danger btn-sm p-0 position-absolute rounded-circle btn-saved-clear"
+                                                    data-checkbox-id="{{ img_form.DELETE.id_for_label }}"
+                                                    style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;"
+                                                    title="Удалить фото">
+                                                <i class="bi bi-x fs-6"></i>
+                                            </button>
+
+                                            <div class="d-flex align-items-center justify-content-center flex-grow-1 my-auto img-saved-wrapper">
+                                                <img src="{{ img_form.instance.image.url }}"
+                                                     class="img-thumbnail"
+                                                     style="max-height: 80px; object-fit: contain;"
+                                                     alt="Сохраненное изображение товара">
+                                            </div>
+                                        {% else %}
+                                            <!-- Пустой слот для добавления фото (Новый или Extra) -->
+                                            <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 p-1 w-100 h-100 image-upload-block">
+
+                                                <button type="button" class="btn btn-danger btn-sm p-0 d-none position-absolute rounded-circle btn-new-clear"
+                                                        style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;"
+                                                        title="Убрать файл">
+                                                    <i class="bi bi-x fs-6"></i>
+                                                </button>
+
+                                                <div style="width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1;">
+                                                    {{ img_form.image }}
+                                                </div>
+                                                <label for="{{ img_form.image.id_for_label }}" class="btn btn-sm btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center border-dashed py-2 m-0" style="border-style: dashed; cursor: pointer; min-height: 110px;">
+                                                    <span class="preview-default-info text-center d-block">
+                                                        <i class="bi bi-plus-circle fs-4 mb-1 text-muted d-block"></i>
+                                                        <span class="small fw-semibold text-muted text-wrap">Добавить фото</span>
+                                                    </span>
+
+                                                    <img src="" class="img-thumbnail d-none img-preview" style="max-height: 80px; object-fit: contain;" alt="Превью">
+                                                </label>
+                                            </div>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- СКРЫТЫЙ ШАБЛОН ДЛЯ КЛОНИРОВАНИЯ НОВЫХ СЛОТОВ -->
+                        <div id="empty-form-template" class="d-none">
+                            <div class="col formset-row">
+                                <div class="card h-100 bg-light border p-2 text-center d-flex flex-column justify-content-between position-relative" style="min-height: 160px;">
+                                    {{ image_formset.empty_form.id }}
+                                    <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 p-1 w-100 h-100 image-upload-block">
+                                        <button type="button" class="btn btn-danger btn-sm p-0 d-none position-absolute rounded-circle btn-new-clear" style="top: 5px; right: 5px; width: 22px; height: 22px; line-height: 18px; z-index: 10;">
+                                            <i class="bi bi-x fs-6"></i>
+                                        </button>
+                                        <div style="width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1;">
+                                            {{ image_formset.empty_form.image }}
+                                        </div>
+                                        <label for="{{ image_formset.empty_form.image.id_for_label }}" class="btn btn-sm btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center border-dashed py-2 m-0" style="border-style: dashed; cursor: pointer; min-height: 110px;">
+                                            <span class="preview-default-info text-center d-block">
+                                                <i class="bi bi-plus-circle fs-4 mb-1 text-muted d-block"></i>
+                                                <span class="small fw-semibold text-muted text-wrap">Добавить фото</span>
+                                            </span>
+                                            <img src="" class="img-thumbnail d-none img-preview" style="max-height: 80px; object-fit: contain;" alt="Превью нового файла">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+
                     <!-- Кнопки действий -->
                     <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn btn-primary btn-lg fw-bold py-2">
-                            <i class="bi bi-plus-circle me-2"></i>Сохранить товар
+                            {% if product.pk %}
+                                <i class="bi bi-check-circle me-2"></i>Сохранить изменения
+                            {% else %}
+                                <i class="bi bi-plus-circle me-2"></i>Сохранить товар
+                            {% endif %}
                         </button>
                         <a href="{% url 'catalog:catalog_list' %}" class="btn btn-outline-secondary">
                             Отмена
                         </a>
                     </div>
                 </form>
-                
+
             </div>
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <!-- Сначала загружаем библиотеку SweetAlert2 (стили и скрипт) -->
+    <link rel="stylesheet" href="{% static 'catalog/css/sweetalert2.min.css' %}">
+    <script src="{% static 'catalog/js/sweetalert2.all.min.js' %}"></script>
+    <!-- Скрипт для превью -->
+    <script src="{% static 'catalog/js/product_gallery.js' %}"></script>
+    <!-- Скрипт для валидации галереи (который мы добавляем) -->
+    <script src="{% static 'catalog/js/product_preview.js' %}"></script>
 {% endblock %}

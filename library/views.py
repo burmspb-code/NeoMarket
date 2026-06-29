@@ -23,7 +23,7 @@ class AuthorUpdateView(UpdateView):
     model = Author
     form_class = AuthorForm
     template_name = "libary/author_form.html"
-    success_url =reverse_lazy("library:authors_list")
+    success_url = reverse_lazy("library:authors_list")
 
 
 class BooksListView(ListView):

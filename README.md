@@ -8,6 +8,7 @@
 1. **Клонируйте репозиторий:**
    ```bash
    git clone https://github.com/burmspb-code/NeoMarket.git
+   cd NeoMarket
    ```
 
 2. **Установите зависимости:**
@@ -16,7 +17,16 @@
    ```
 
 3. **Запустите проект с демонстрационными данными:**
-   Для автоматического применения миграций, загрузки актуальной базы категорий/товаров и запуска локального сервера выполните в терминале следующую команду:
-   ```bash
-   poetry run python manage.py migrate && poetry run python manage.py loaddata catalog/fixtures/category_fixture.json catalog/fixtures/product_fixture.json && poetry run python manage.py runserver
-   ```
+   Для применения миграций, загрузки каталога (категорий, товаров и галереи изображений) и старта локального сервера выполните в терминале:
+
+   * **Для Linux / macOS / Git Bash:**
+     ```bash
+     poetry run python manage.py migrate && poetry run python manage.py loaddata catalog/fixtures/category_fixture.json catalog/fixtures/product_fixture.json catalog/fixtures/product_images_dump.json && poetry run python manage.py runserver
+     ```
+   * **Для Windows (PowerShell):**
+     ```powershell
+     poetry run python manage.py migrate; poetry run python manage.py loaddata catalog/fixtures/category_fixture.json catalog/fixtures/product_fixture.json catalog/fixtures/product_images_dump.json; poetry run python manage.py runserver
+     ```
+
+   > 💡 **Важно:** Фикстуры восстанавливают только записи в базе данных. Чтобы на сайте отображались сами изображения товаров и текстуры, убедитесь, что папка `media/` скопирована в корень проекта.
+

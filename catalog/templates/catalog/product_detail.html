@@ -26,11 +26,52 @@
             <!-- Блок изображений товара -->
             <div class="col-md-6 col-lg-5">
                 <div class="position-relative bg-white border rounded p-3 text-center mb-3">
-                    <!-- Безопасная проверка: есть ли у товара фото -->
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 400px; object-fit: contain;">
+                    <!-- Безопасная проверка: есть ли у товара хотя бы одно фото в галерее -->
+                    {% if product.images.all %}
+                        
+                        <!-- Слайдер Bootstrap Carousel -->
+                        <div id="productCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                            
+                            <!-- Индикаторы (точки) снизу слайдера, если картинок больше одной -->
+                            {% if product.images.count > 1 %}
+                                <div class="carousel-indicators" style="margin-bottom: -10px;">
+                                    {% for img in product.images.all %}
+                                        <button type="button"
+                                                data-bs-target="#productCarousel"
+                                                data-bs-slide-to="{{ forloop.counter0 }}"
+                                                class="{{ forloop.first|yesno:'active,' }}"
+                                                aria-current="{{ forloop.first|yesno:'true,false' }}"
+                                                aria-label="Слайд {{ forloop.counter }}">
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <!-- Само содержимое слайдера (активные картинки) -->
+                            <div class="carousel-inner">
+                                {% for img in product.images.all %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="5000">
+                                        <img src="{{ img.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 400px; object-fit: contain;">
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Стрелки управления "Вперед/Назад", если картинок больше одной -->
+                            {% if product.images.count > 1 %}
+                                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Назад</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Вперед</span>
+                                </button>
+                            {% endif %}
+                            
+                        </div>
+
                     {% else %}
-                        <!-- Заглушка, если картинка не загружена -->
+                        <!-- Заглушка, если картинок вообще нет -->
                         <div class="d-flex flex-column align-items-center justify-content-center border rounded bg-light" style="height: 300px;">
                             <i class="bi bi-image text-muted display-1"></i>
                             <span class="text-muted mt-2">Нет фото товара</span>
@@ -43,10 +84,10 @@
             <div class="col-md-6 col-lg-7 d-flex flex-column justify-content-between">
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <!-- Вывод артикула (если есть в вашей модели) -->
+                        <!-- Вывод артикула -->
                         <small class="text-muted">Артикул: <span class="fw-bold">{{ product.sku|default:"Не указан" }}</span></small>
                         
-                        <!-- Проверка наличия (предполагаем, что у вас есть поле is_available или stock) -->
+                        <!-- Проверка наличия -->
                         {% if product.is_available|default:True %}
                             <span class="badge bg-success-subtle text-success border border-success-subtle">
                                 <i class="bi bi-check-circle-fill me-1"></i> В наличии
@@ -71,23 +112,39 @@
                     <!-- Цена товара -->
                     <div class="my-4">
                         <div class="d-flex align-items-center">
-                            <!-- Форматирование цены (добавляет пробелы между тысячами) -->
                             <span class="display-5 fw-bold text-dark me-3">{{ product.price }} ₽</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Кнопки -->
-                <div class="row g-2 pt-3 border-top">
-                    <div class="col-sm-8">
-                        <button class="btn btn-primary btn-lg w-100 py-3 fw-bold">
-                            <i class="bi bi-cart-plus me-2"></i>Добавить в корзину
-                        </button>
+                <!-- Кнопки управления -->
+                <div>
+                    <div class="row g-2 pt-3 border-top mb-2">
+                        <div class="col-sm-8">
+                            <button class="btn btn-primary btn-lg w-100 py-3 fw-bold">
+                                <i class="bi bi-cart-plus me-2"></i>Добавить в корзину
+                            </button>
+                        </div>
+                        <div class="col-sm-4">
+                            <button class="btn btn-outline-secondary btn-lg w-100 py-3">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-outline-secondary btn-lg w-100 py-3">
-                            <i class="bi bi-heart"></i>
-                        </button>
+                    
+                    <!-- БЛОК АДМИНИСТРИРОВАНИЯ: РЕДАКТИРОВАНИЕ И УДАЛЕНИЕ -->
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <a href="{% url 'catalog:product_edit' product.pk %}" class="btn btn-outline-warning w-100 py-2 fw-semibold">
+                                <i class="bi bi-pencil-square me-2"></i>Редактировать
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <!-- Просто ссылка, ведущая на страницу подтверждения -->
+                            <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-outline-danger w-100 py-2 fw-semibold">
+                                <i class="bi bi-trash me-2"></i>Удалить товар
+                            </a>
+                        </div>
                     </div>
                 </div>
 
