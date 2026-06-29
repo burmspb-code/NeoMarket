@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "catalog",
     "library",
     "blog",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,5 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 # Email для получения уведомлений о просмотрах
 EMAIL_ADMIN_NOTIFICATION = os.getenv("EMAIL_ADMIN_NOTIFICATION")
+
+AUTH_USER_MODEL = "users.CustomUser"
