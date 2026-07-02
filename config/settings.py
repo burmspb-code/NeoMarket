@@ -20,7 +20,6 @@ ALLOWED_HOSTS = ["*"]
 
 
 # Определение приложений проекта
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -35,7 +34,6 @@ INSTALLED_APPS = [
 ]
 
 # Промежуточное программное обеспечение (Middleware)
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -50,7 +48,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 
 # Конфигурация шаблонизатора
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -72,7 +69,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Настройки базы данных PostgreSQL
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -85,7 +81,6 @@ DATABASES = {
 }
 
 # Валидаторы паролей для безопасности учетных записей
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -103,7 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Языковые и региональные настройки
-
 LANGUAGE_CODE = "ru-ru"
 
 TIME_ZONE = "Europe/Moscow"
@@ -114,48 +108,39 @@ USE_TZ = True
 
 
 # Настройки статических файлов (CSS, JavaScript, изображения)
-
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Настройки медиа-файлов (загружаемые пользователями файлы)
-
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Использование SMTP для отправки писем
-
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-# Конфигурация SMTP Google
-
-EMAIL_HOST = "://gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# Конфигурация SMTP Яндекс
+EMAIL_HOST = "smtp.yandex.ru"
+EMAIL_PORT = 465                # Яндекс использует порт 465 для SSL
+EMAIL_USE_SSL = True            # Использование SSL вместо TLS (для Яндекса это надежнее)
+EMAIL_USE_TLS = False           # Отключаем TLS
 
 # Логин и пароль приложения почты
-
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 
 # 16-значный пароль приложения почты
-
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # Email отправителя по умолчанию
-
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 # Email для получения уведомлений о просмотрах
-
 EMAIL_ADMIN_NOTIFICATION = os.getenv("EMAIL_ADMIN_NOTIFICATION")
 
 # Подключение кастомной модели пользователя
-
 AUTH_USER_MODEL = "users.CustomUser"
 
 # Настройки перенаправления для системы аутентификации
-
 LOGIN_REDIRECT_URL = "library:books_list"  # Куда направлять после успешного входа
 LOGIN_URL = "users:login"  # Куда отправлять неавторизованного пользователя
