@@ -1,8 +1,10 @@
 """Представления для управления учетными записями пользователя."""
 
+from django.conf import settings
 from django.contrib.auth import login
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
+from django.core.mail import send_mail
 from .forms import CustomUserCreationForm
 
 
@@ -28,6 +30,24 @@ class RegisterView(CreateView):
         """
         # Сначала сохраняем пользователя в БД через родительский метод
         response = super().form_valid(form)
+
         # self.object содержит созданного пользователя — авторизуем его
         login(self.request, self.object)
+
+        # Отправляем письмо на почту
+        self.send_welcome_email(self.object.email)
+
         return response
+
+    def send_welcome_email(self, user_email):
+        """Отправка приветственного письма на почту.
+            Поля:
+            subject (str): Заголовок письма.
+            messages (str): Сообщение письма.
+            recipient_list (list): Список потовых адресов для отправки.
+        """
+        subject = 'Добро пожаловать на наш сервис!'
+        message = 'Спасибо, что зарегистрировались на нашем сервисе!'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [user_email,]
+        send_mail(subject, message, from_email, recipient_list)
