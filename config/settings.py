@@ -18,7 +18,6 @@ DEBUG = True
 # Разрешенные хосты для работы приложения
 ALLOWED_HOSTS = ["*"]
 
-
 # Определение приложений проекта
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -27,6 +26,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Сторонние библиотеки
+    "phonenumber_field",
+
+    # Локальные приложения проекта
     "catalog",
     "library",
     "blog",
@@ -144,3 +148,6 @@ AUTH_USER_MODEL = "users.CustomUser"
 # Настройки перенаправления для системы аутентификации
 LOGIN_REDIRECT_URL = "library:books_list"  # Куда направлять после успешного входа
 LOGIN_URL = "users:login"  # Куда отправлять неавторизованного пользователя
+
+# Регион по умолчанию для валидации номеров (ISO 3166-1 alpha-2)
+PHONENUMBER_DEFAULT_REGION = 'RU'
