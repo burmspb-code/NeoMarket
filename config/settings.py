@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
     # Сторонние библиотеки
     "phonenumber_field",
+    'django_countries',
 
     # Локальные приложения проекта
     "catalog",

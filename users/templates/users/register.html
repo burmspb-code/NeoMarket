@@ -1,4 +1,3 @@
-<!-- users/templates/users/register.html -->
 {% extends 'catalog/base.html' %}
 
 {% block title %}Регистрация нового пользователя{% endblock %}
@@ -6,21 +5,17 @@
 {% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
-        <!-- Сделали карточку чуть шире для удобного заполнения нескольких полей -->
         <div class="col-12 col-md-8 col-lg-6">
-            <!-- Современная карточка без рамок и с мягкой тенью -->
             <div class="card shadow border-0 rounded-3">
                 <div class="card-body p-4 p-sm-5">
 
-                    <!-- Заголовок формы с иконкой создания профиля -->
                     <h2 class="card-title text-center mb-4 fw-bold text-dark">
                         <i class="bi bi-person-plus-fill text-primary me-2"></i>Регистрация
                     </h2>
 
-                    <form method="post" novalidate>
+                    <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
 
-                        <!-- Рендерим скрытые поля, если они есть -->
                         {% for hidden_field in form.hidden_fields %}
                             {{ hidden_field }}
                         {% endfor %}
@@ -32,22 +27,17 @@
                                     {{ field.label }}
                                 </label>
 
-                                <!-- Кастомный рендеринг инпута с классами Bootstrap 5 -->
-                                <input type="{{ field.field.widget.input_type }}"
-                                       name="{{ field.html_name }}"
-                                       id="{{ field.id_for_label }}"
-                                       class="form-control {% if field.errors %}is-invalid{% endif %}"
-                                       {% if field.value %}value="{{ field.value }}"{% endif %}
-                                       required>
+                                <!-- Django сам отрендерит правильный тег (input или select) со всеми классами из формы -->
+                                {{ field }}
 
                                 <!-- Валидация: вывод ошибок под конкретным полем -->
                                 {% if field.errors %}
-                                    <div class="invalid-feedback">
+                                    <div class="invalid-feedback d-block">
                                         {{ field.errors|striptags }}
                                     </div>
                                 {% endif %}
 
-                                <!-- Вывод подсказок Django (например, требования к паролю) -->
+                                <!-- Вывод подсказок Django -->
                                 {% if field.help_text %}
                                     <div class="form-text text-muted small" style="font-size: 0.85rem;">
                                         {{ field.help_text|safe }}
@@ -56,7 +46,6 @@
                             </div>
                         {% endfor %}
 
-                        <!-- Вывод общих ошибок формы (если пароли не совпали и т.д.) -->
                         {% if form.non_field_errors %}
                             <div class="alert alert-danger border-0 shadow-sm mb-3" role="alert">
                                 {% for error in form.non_field_errors %}
@@ -65,7 +54,6 @@
                             </div>
                         {% endif %}
 
-                        <!-- Кнопка отправки формы -->
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg shadow-sm">
                                 <i class="bi bi-check-circle-fill me-2"></i>Создать аккаунт
@@ -73,7 +61,6 @@
                         </div>
                     </form>
 
-                    <!-- Переход на страницу логина для уже зарегистрированных -->
                     <div class="text-center mt-4 border-top pt-3">
                         <span class="text-muted small">Уже зарегистрированы?</span>
                         <a href="{% url 'users:login' %}" class="text-decoration-none small fw-bold ms-1">Войти</a>

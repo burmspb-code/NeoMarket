@@ -2,6 +2,9 @@
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django_countries import countries
+# ИСПРАВЛЕНО: Импортируем поле формы для корректной валидации телефонов мира
+from phonenumber_field.formfields import PhoneNumberField
 
 from .models import CustomUser
 
@@ -9,25 +12,40 @@ from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
     """Создание кастомной формы для регистрации пользователя."""
 
-    phone_number = forms.CharField(
-        max_length=15,
+    # ИСПРАВЛЕНО: Теперь поле формы соответствует полю модели.
+    # Оно само проверяет корректность кодов стран, плюсов и пробелов.
+    phone_number = PhoneNumberField(
         required=False,
         help_text="Введите номер телефона (необязательное поле).",
     )
-    username = forms.CharField(max_length=50, required=True)
-    # Отключаем форму для интеграции паролья на других сервисах
+
+    # Отключаем форму для интеграции пароля на других сервисах
     usable_password = None
 
     class Meta(UserCreationForm.Meta):
         """Метаданные формы. Привязка к модели CustomUser и определение полей."""
 
         model = CustomUser
-        fields = ("email", "username", "first_name", "last_name", "phone_number")
+        # Поля разделены для предотвращения ложного автозаполнения браузером
+        fields = ("email", "first_name", "last_name", "country", "phone_number", "avatar")
 
-    def clean_phone_number(self):
-        """Валидация номера телефона. Разрешены только цифры."""
-        phone_number = self.cleaned_data.get("phone_number")
-        if phone_number and not phone_number.isdigit():
-            raise forms.ValidationError("Номер телефона должен содержать только цифры.")
+    def __init__(self, *args, **kwargs):
+        """Настройка полей после инициализации формы."""
+        super().__init__(*args, **kwargs)
 
-        return phone_number
+        # ИСПРАВЛЕНО: Явно меняем текстовый виджет поля страны на выпадающий список Select.
+        # Без этой строки передача choices ниже приведет к ошибкам рендеринга.
+        self.fields["country"].widget = forms.Select()
+        self.fields["country"].choices = [("", "------")] + list(countries)
+
+        # Добавляем класс Bootstrap ко всем полям, включая поля паролей
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({"class": "form-control"})
+
+        # Отключаем автозаполнение для телефона, чтобы туда не падал Email
+        self.fields["phone_number"].widget.attrs.update({
+            "autocomplete": "tel"
+        })
+
+    # УДАЛЕНО: Метод clean_phone_number больше не нужен,
+    # так как PhoneNumberField автоматически и гораздо лучше валидирует любые номера.

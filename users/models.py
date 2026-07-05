@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+from django_countries.fields import CountryField
 
 
 class CustomUser(AbstractUser):
@@ -8,6 +9,7 @@ class CustomUser(AbstractUser):
     Поля:
         email (EmailField): Уникальный адрес электронной почты, используется для входа.
         phone_number (CharField): Номер телефона пользователя, необязательное поле.
+        country (CountryField): Страна проживания пользователя, необязательное поле.
         avatar (ImageField): Изображение профиля, необязательное поле.
         username (CharField): Стандартное поле Django, оставлено для совместимости.
     Атрибуты:
@@ -22,6 +24,12 @@ class CustomUser(AbstractUser):
         unique=True,
         verbose_name='Номер телефона',
         help_text='Введите номер телефона'
+    )
+    country = CountryField(
+        blank=True,
+        null=True,
+        verbose_name='Страна',
+        help_text='Выберите страну проживания'
     )
     avatar = models.ImageField(
         upload_to="avatars/",

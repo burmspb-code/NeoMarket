@@ -21,7 +21,7 @@ class RegisterView(CreateView):
 
     form_class = CustomUserCreationForm
     template_name = "users/register.html"
-    success_url = reverse_lazy("library:books_list")
+    success_url = reverse_lazy("catalog:catalog_list")
 
     def form_valid(self, form):
         """Вызывается при успешной валидации данных.
