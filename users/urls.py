@@ -1,5 +1,4 @@
 """Маршрутизация для приложения управления пользователями."""
-
 from django.urls import path
 from .views import RegisterView
 from django.contrib.auth.views import LoginView, LogoutView
@@ -9,9 +8,9 @@ app_name = "users"
 
 urlpatterns = [
     # Страница регистрации нового пользователя
-    path("register/", RegisterView.as_view(), name="register"),
+    path("register/", RegisterView.as_view(template_name="users/register.html"), name="register"),
     # Страница аутентификации
     path("login/", LoginView.as_view(template_name="users/login.html"), name="login"),
-    # Выход после аутентификации и перенаправления на список книг
-    path("logout/", LogoutView.as_view(next_page="library:books_list"), name="logout"),
+    # Выход после аутентификации и перенаправления на католог товаров
+    path("logout/", LogoutView.as_view(next_page="catalog:home"), name="logout"),
 ]

@@ -5,8 +5,9 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    # Главная страница: выводит пустой шаблон «из коробки»
-    path("", TemplateView.as_view(template_name="catalog/empty.html"), name="home"),
+    # Главная страница
+    # path("", TemplateView.as_view(template_name="catalog/empty.html"), name="home"), # Выводит пустой шаблон «из коробки
+    path("", include("catalog.urls", namespace="catalog")),
     # Страница для администрирования
     path("admin/", admin.site.urls),
     # Страница для администрирования

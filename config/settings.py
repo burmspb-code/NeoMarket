@@ -146,8 +146,9 @@ EMAIL_ADMIN_NOTIFICATION = os.getenv("EMAIL_ADMIN_NOTIFICATION")
 AUTH_USER_MODEL = "users.CustomUser"
 
 # Настройки перенаправления для системы аутентификации
-LOGIN_REDIRECT_URL = "library:books_list"  # Куда направлять после успешного входа
+LOGIN_REDIRECT_URL = "catalog:home"  # Куда направлять после успешного входа
 LOGIN_URL = "users:login"  # Куда отправлять неавторизованного пользователя
+LOGOUT_REDIRECT_URL = 'catalog:home' # Куда направлять после успешного выхода
 
 # Регион по умолчанию для валидации номеров (ISO 3166-1 alpha-2)
 PHONENUMBER_DEFAULT_REGION = 'RU'
