@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
         country (CountryField): Страна проживания пользователя, необязательное поле.
         avatar (ImageField): Изображение профиля, необязательное поле.
         username (CharField): Стандартное поле Django, оставлено для совместимости.
+        token (CharField): Токен, необязательное поле.
     Атрибуты:
         USERNAME_FIELD (str): Указывает на email для аутентификации.
         REQUIRED_FIELDS (list): Список обязательных полей для создания superuser (['username']).
@@ -37,6 +38,12 @@ class CustomUser(AbstractUser):
         blank=True,
         verbose_name = 'Аватар',
         help_text = 'Загрузите аватар'
+    )
+    token = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Token'
     )
 
     USERNAME_FIELD = "email"

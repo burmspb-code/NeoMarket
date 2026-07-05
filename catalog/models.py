@@ -2,6 +2,11 @@ from django.db import models
 
 
 class Category(models.Model):
+    """Модель категории для группировки товаров.
+        Поля:
+            name (CharField): Название категории, уникальное в пределах длины.
+            description (TextField): Подробное описание категории товаров.
+    """
     name = models.CharField(
         max_length=150,
         verbose_name="Наименование",
@@ -21,6 +26,16 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    """Модель товара, содержащая основные характеристики и связь с категорией.
+        Поля:
+            name (CharField): Наименование торговой позиции.
+            sku (CharField): Уникальный артикул товара для складского учета.
+            description (TextField): Подробное описание характеристик товара.
+            category (ForeignKey): Ссылка на категорию, к которой относится товар.
+            price (DecimalField): Стоимость товара с точностью до двух знаков.
+            created_at (DateTimeField): Дата и время автоматического добавления товара.
+            updated_at (DateTimeField): Дата и время автоматического обновления товара.
+    """
     name = models.CharField(
         max_length=150,
         verbose_name="Наименование",
@@ -61,6 +76,11 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
+    """Модель для хранения изображений товара в рамках галереи.
+        Поля:
+            product (ForeignKey): Связь с моделью Product через уникальный артикул SKU.
+            image (ImageField): Файл изображения товара, загружаемый в медиа-директорию.
+    """
     product = models.ForeignKey(
         Product,
         to_field="sku",

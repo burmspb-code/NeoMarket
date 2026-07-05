@@ -3,7 +3,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django_countries import countries
-# ИСПРАВЛЕНО: Импортируем поле формы для корректной валидации телефонов мира
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import CustomUser
@@ -12,8 +11,6 @@ from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
     """Создание кастомной формы для регистрации пользователя."""
 
-    # ИСПРАВЛЕНО: Теперь поле формы соответствует полю модели.
-    # Оно само проверяет корректность кодов стран, плюсов и пробелов.
     phone_number = PhoneNumberField(
         required=False,
         help_text="Введите номер телефона (необязательное поле).",
@@ -33,7 +30,7 @@ class CustomUserCreationForm(UserCreationForm):
         """Настройка полей после инициализации формы."""
         super().__init__(*args, **kwargs)
 
-        # ИСПРАВЛЕНО: Явно меняем текстовый виджет поля страны на выпадающий список Select.
+        # Явно меняем текстовый виджет поля страны на выпадающий список Select.
         # Без этой строки передача choices ниже приведет к ошибкам рендеринга.
         self.fields["country"].widget = forms.Select()
         self.fields["country"].choices = [("", "------")] + list(countries)
