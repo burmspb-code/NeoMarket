@@ -5,33 +5,49 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0001_initial'),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='customuser',
-            options={'verbose_name': 'Пользователь', 'verbose_name_plural': 'Пользлватели'},
+            name="customuser",
+            options={
+                "verbose_name": "Пользователь",
+                "verbose_name_plural": "Пользлватели",
+            },
         ),
         migrations.RemoveField(
-            model_name='customuser',
-            name='username',
+            model_name="customuser",
+            name="username",
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='avatar',
-            field=models.ImageField(blank=True, help_text='Загрузите аватар', null=True, upload_to='avatars/', verbose_name='Аватар'),
+            model_name="customuser",
+            name="avatar",
+            field=models.ImageField(
+                blank=True,
+                help_text="Загрузите аватар",
+                null=True,
+                upload_to="avatars/",
+                verbose_name="Аватар",
+            ),
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='email',
-            field=models.EmailField(max_length=254, unique=True, verbose_name='Email'),
+            model_name="customuser",
+            name="email",
+            field=models.EmailField(max_length=254, unique=True, verbose_name="Email"),
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='phone_number',
-            field=phonenumber_field.modelfields.PhoneNumberField(blank=True, help_text='Введите номер телефона', max_length=128, null=True, region=None, unique=True, verbose_name='Номер телефона'),
+            model_name="customuser",
+            name="phone_number",
+            field=phonenumber_field.modelfields.PhoneNumberField(
+                blank=True,
+                help_text="Введите номер телефона",
+                max_length=128,
+                null=True,
+                region=None,
+                unique=True,
+                verbose_name="Номер телефона",
+            ),
         ),
     ]

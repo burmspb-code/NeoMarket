@@ -26,12 +26,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Сторонние библиотеки
-    "phonenumber_field", # Модуль валидации номера телефона
-    'django_countries', # Модуль выбора страны из выпадающего списка
-    'django_recaptcha',  # Модуль капчи
-
+    "phonenumber_field",  # Модуль валидации номера телефона
+    "django_countries",  # Модуль выбора страны из выпадающего списка
+    "django_recaptcha",  # Модуль капчи
     # Локальные приложения проекта
     "catalog",
     "library",
@@ -128,9 +126,9 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 # Конфигурация SMTP Яндекс
 EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = 465                # Яндекс использует порт 465 для SSL
-EMAIL_USE_SSL = True            # Использование SSL вместо TLS (для Яндекса это надежнее)
-EMAIL_USE_TLS = False           # Отключаем TLS
+EMAIL_PORT = 465  # Яндекс использует порт 465 для SSL
+EMAIL_USE_SSL = True  # Использование SSL вместо TLS (для Яндекса это надежнее)
+EMAIL_USE_TLS = False  # Отключаем TLS
 
 # Логин и пароль приложения почты
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
@@ -150,17 +148,17 @@ AUTH_USER_MODEL = "users.CustomUser"
 # Настройки перенаправления для системы аутентификации
 LOGIN_REDIRECT_URL = "catalog:home"  # Куда направлять после успешного входа
 LOGIN_URL = "users:login"  # Куда отправлять неавторизованного пользователя
-LOGOUT_REDIRECT_URL = 'catalog:home' # Куда направлять после успешного выхода
+LOGOUT_REDIRECT_URL = "catalog:home"  # Куда направлять после успешного выхода
 
 # Регион по умолчанию для валидации номеров (ISO 3166-1 alpha-2)
-PHONENUMBER_DEFAULT_REGION = 'RU'
+PHONENUMBER_DEFAULT_REGION = "RU"
 
 # Время жизни токена для восстановления пароля и активации аккаунта (24 часа)
 PASSWORD_RESET_TIMEOUT = 24 * 60 * 60  # 86400 секунд
 
 # Ключи Google reCAPTCHA v2 (для рабочей среды замените на свои из Google Console)
-RECAPTCHA_PUBLIC_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'   # Публичный ключ
-RECAPTCHA_PRIVATE_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'  # Секретный ключ
+RECAPTCHA_PUBLIC_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"  # Публичный ключ
+RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # Секретный ключ
 
 # Отключение ошибки при локальной разработке с тестовыми ключами:
-SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
+SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]

@@ -5,15 +5,20 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0002_alter_customuser_options_remove_customuser_username_and_more'),
+        ("users", "0002_alter_customuser_options_remove_customuser_username_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='country',
-            field=django_countries.fields.CountryField(blank=True, help_text='Выберите страну проживания', max_length=2, null=True, verbose_name='Страна'),
+            model_name="customuser",
+            name="country",
+            field=django_countries.fields.CountryField(
+                blank=True,
+                help_text="Выберите страну проживания",
+                max_length=2,
+                null=True,
+                verbose_name="Страна",
+            ),
         ),
     ]

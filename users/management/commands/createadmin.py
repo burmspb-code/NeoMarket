@@ -18,7 +18,9 @@ class Command(BaseCommand):
 
         if not password:
             self.stdout.write(
-                self.style.ERROR("Ошибка: В файле .env не задана переменная ADMIN_PASSWORD")
+                self.style.ERROR(
+                    "Ошибка: В файле .env не задана переменная ADMIN_PASSWORD"
+                )
             )
             return
 
@@ -30,16 +32,16 @@ class Command(BaseCommand):
                 "last_name": "admin",
                 "is_staff": True,
                 "is_superuser": True,
-            }
+            },
         )
 
         if created:
             user.set_password(password)
             user.save()
-            self.stdout.write(
-                self.style.SUCCESS(f"Успешно создан админ: {email}")
-            )
+            self.stdout.write(self.style.SUCCESS(f"Успешно создан админ: {email}"))
         else:
             self.stdout.write(
-                self.style.WARNING(f"Пользователь {email} уже существует в базе данных.")
+                self.style.WARNING(
+                    f"Пользователь {email} уже существует в базе данных."
+                )
             )

@@ -9,6 +9,9 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.generic import TemplateView, View
 from django.views.generic.edit import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import UpdateView
+from .forms import UserProfileForm
 
 from .forms import CustomUserCreationForm
 from .models import CustomUser
@@ -42,11 +45,11 @@ class RegisterView(CreateView):
 
         # Отправляем письмо
         send_mail(
-            subject='Подтверждение регистрации',
-            message=f'Спасибо за регистрацию! Для активации аккаунта перейдите по ссылке: {activation_url}',
+            subject="Подтверждение регистрации",
+            message=f"Спасибо за регистрацию! Для активации аккаунта перейдите по ссылке: {activation_url}",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
-            fail_silently=True
+            fail_silently=True,
         )
 
         return redirect(self.success_url)
@@ -77,3 +80,18 @@ class EmailConfirmationSentView(TemplateView):
     """Статическая страница с уведомлением об отправке письма."""
 
     template_name = "users/email_confirmation_sent.html"
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """Представление для редактирования профиля текущего пользователя."""
+
+    model = CustomUser
+    form_class = UserProfileForm
+    template_name = "users/profile_edit.html"
+
+    # Куда перенаправить пользователя после успешного сохранения профиля
+    success_url = reverse_lazy("catalog:home")
+
+    def get_object(self, queryset=None):
+        """Редактируем строго того пользователя, который сейчас авторизован."""
+        return self.request.user

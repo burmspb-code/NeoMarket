@@ -17,35 +17,36 @@ class CustomUser(AbstractUser):
         USERNAME_FIELD (str): Указывает на email для аутентификации.
         REQUIRED_FIELDS (list): Список обязательных полей для создания superuser (['username']).
     """
+
     username = None
-    email = models.EmailField(unique=True, verbose_name='Email')
+    email = models.EmailField(unique=True, verbose_name="Email")
     phone_number = PhoneNumberField(
         blank=True,
         null=True,
         unique=True,
-        verbose_name='Номер телефона',
-        help_text='Введите номер телефона'
+        verbose_name="Номер телефона",
+        help_text="Введите номер телефона",
     )
     country = CountryField(
         blank=True,
         null=True,
-        verbose_name='Страна',
-        help_text='Выберите страну проживания'
+        verbose_name="Страна",
+        help_text="Выберите страну проживания",
     )
     avatar = models.ImageField(
         upload_to="avatars/",
         null=True,
         blank=True,
-        verbose_name = 'Аватар',
-        help_text = 'Загрузите аватар'
+        verbose_name="Аватар",
+        help_text="Загрузите аватар",
     )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
 
     def __str__(self):
         return self.email

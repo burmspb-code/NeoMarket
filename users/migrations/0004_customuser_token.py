@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0003_customuser_country'),
+        ("users", "0003_customuser_country"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='token',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Token'),
+            model_name="customuser",
+            name="token",
+            field=models.CharField(
+                blank=True, max_length=100, null=True, verbose_name="Token"
+            ),
         ),
     ]
