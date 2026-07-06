@@ -28,8 +28,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Сторонние библиотеки
-    "phonenumber_field",
-    'django_countries',
+    "phonenumber_field", # Модуль валидации номера телефона
+    'django_countries', # Модуль выбора страны из выпадающего списка
+    'django_recaptcha',  # Модуль капчи
 
     # Локальные приложения проекта
     "catalog",
@@ -155,5 +156,11 @@ LOGOUT_REDIRECT_URL = 'catalog:home' # Куда направлять после 
 PHONENUMBER_DEFAULT_REGION = 'RU'
 
 # Время жизни токена для восстановления пароля и активации аккаунта (24 часа)
-# PASSWORD_RESET_TIMEOUT = 24 * 60 * 60  # 86400 секунд
-PASSWORD_RESET_TIMEOUT = 60  # 60 секунд
+PASSWORD_RESET_TIMEOUT = 24 * 60 * 60  # 86400 секунд
+
+# Ключи Google reCAPTCHA v2 (для рабочей среды замените на свои из Google Console)
+RECAPTCHA_PUBLIC_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'   # Публичный ключ
+RECAPTCHA_PRIVATE_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'  # Секретный ключ
+
+# Отключение ошибки при локальной разработке с тестовыми ключами:
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']

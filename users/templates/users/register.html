@@ -3,6 +3,9 @@
 {% block title %}Регистрация нового пользователя{% endblock %}
 
 {% block content %}
+<!-- Подключение JS-скриптов капчи -->
+{{ form.media }}
+
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
@@ -16,36 +19,87 @@
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
 
-                        {% for hidden_field in form.hidden_fields %}
-                            {{ hidden_field }}
-                        {% endfor %}
+                        <!-- 1. Выводим основные текстовые поля (Email, Имя, Фамилия) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">{{ form.email.label }}</span>
+                                {{ form.email }}
+                            </label>
+                            {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|striptags }}</div>{% endif %}
+                        </div>
 
-                        <!-- Цикл по всем видимым полям формы регистрации -->
-                        {% for field in form.visible_fields %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">
-                                    {{ field.label }}
-                                </label>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">{{ form.first_name.label }}</span>
+                                {{ form.first_name }}
+                            </label>
+                            {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors|striptags }}</div>{% endif %}
+                        </div>
 
-                                <!-- Django сам отрендерит правильный тег (input или select) со всеми классами из формы -->
-                                {{ field }}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">{{ form.last_name.label }}</span>
+                                {{ form.last_name }}
+                            </label>
+                            {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors|striptags }}</div>{% endif %}
+                        </div>
 
-                                <!-- Валидация: вывод ошибок под конкретным полем -->
-                                {% if field.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ field.errors|striptags }}
-                                    </div>
-                                {% endif %}
+                        <!-- 2. Выводим выпадающие списки и файлы (Страна, Телефон, Аватар) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">{{ form.country.label }}</span>
+                                {{ form.country }}
+                            </label>
+                            {% if form.country.errors %}<div class="invalid-feedback d-block">{{ form.country.errors|striptags }}</div>{% endif %}
+                        </div>
 
-                                <!-- Вывод подсказок Django -->
-                                {% if field.help_text %}
-                                    <div class="form-text text-muted small" style="font-size: 0.85rem;">
-                                        {{ field.help_text|safe }}
-                                    </div>
-                                {% endif %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">{{ form.phone_number.label }}</span>
+                                {{ form.phone_number }}
+                            </label>
+                            {% if form.phone_number.errors %}<div class="invalid-feedback d-block">{{ form.phone_number.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">{{ form.avatar.label }}</span>
+                                {{ form.avatar }}
+                            </label>
+                            {% if form.avatar.errors %}<div class="invalid-feedback d-block">{{ form.avatar.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <!-- 3. Выводим поля паролей из стандартной UserCreationForm (password1 и password2) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">Пароль</span>
+                                {{ form.password1 }}
+                            </label>
+                            {% if form.password1.errors %}<div class="invalid-feedback d-block">{{ form.password1.errors|striptags }}</div>{% endif %}
+                            {% if form.password1.help_text %}<div class="form-text text-muted small">{{ form.password1.help_text|safe }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">Подтверждение пароля</span>
+                                {{ form.password2 }}
+                            </label>
+                            {% if form.password2.errors %}<div class="invalid-feedback d-block">{{ form.password2.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <!-- 4. КАПЧА: Выводим ОДИН РАЗ строго по центру перед кнопкой -->
+                        <div class="mb-4 d-flex flex-column align-items-center justify-content-center">
+                            <div class="my-2">
+                                {{ form.captcha }}
                             </div>
-                        {% endfor %}
+                            {% if form.captcha.errors %}
+                                <div class="invalid-feedback d-block text-center mt-1">
+                                    {{ form.captcha.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
 
+                        <!-- Ошибки всей формы -->
                         {% if form.non_field_errors %}
                             <div class="alert alert-danger border-0 shadow-sm mb-3" role="alert">
                                 {% for error in form.non_field_errors %}
@@ -63,6 +117,7 @@
 
                     <div class="text-center mt-4 border-top pt-3">
                         <span class="text-muted small">Уже зарегистрированы?</span>
+                        <!-- noinspection HtmlUnknownTarget -->
                         <a href="{% url 'users:login' %}" class="text-decoration-none small fw-bold ms-1">Войти</a>
                     </div>
 

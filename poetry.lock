@@ -117,6 +117,24 @@ phonenumbers = ["phonenumbers (>=7.0.2)"]
 phonenumberslite = ["phonenumberslite (>=7.0.2)"]
 
 [[package]]
+name = "django-recaptcha"
+version = "4.1.0"
+description = "Django recaptcha form field/widget app."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django_recaptcha-4.1.0-py3-none-any.whl", hash = "sha256:463aa65967e973de466b28ce8e8b6abb2faffb1ce0c7faa1bf0e5b041e0497cb"},
+    {file = "django_recaptcha-4.1.0.tar.gz", hash = "sha256:73097b958733f65b729d4e4630c51fc2bf147aca6f026017d18898dfc25cb4c5"},
+]
+
+[package.dependencies]
+django = "*"
+
+[package.extras]
+testing = ["coveralls", "tox", "tox-gh-actions"]
+
+[[package]]
 name = "executing"
 version = "2.2.1"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -790,4 +808,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "acd8c76f2567348c222ff02ab27d5dcd835e154e1bc0730163f16b1ee8303361"
+content-hash = "3ed9b3c825abc749e303bd0e66b12f7770cbae52b76f14dd9bed18b2f585c6d6"
