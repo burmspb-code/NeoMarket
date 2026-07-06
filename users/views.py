@@ -1,48 +1,46 @@
-"""Представления для управления учетными записями пользователя."""
-
-import secrets
+"""Представления для управления учетными записями пользователя с безопасными токенами."""
 
 from django.conf import settings
-from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.generic import TemplateView, View
 from django.views.generic.edit import CreateView
-from django.core.mail import send_mail
 
 from .forms import CustomUserCreationForm
 from .models import CustomUser
 
 
 class RegisterView(CreateView):
-    """Представление для регистрации нового пользователя."""
+    """Представление для регистрации нового пользователя с безопасным временным токеном."""
 
     form_class = CustomUserCreationForm
     template_name = "users/register.html"
-    # Перенаправляем на страницу с уведомлением о проверке почты,
     success_url = reverse_lazy("users:email_confirmation_sent")
 
     def form_valid(self, form):
-        """Представление для регистрации нового пользователя с генерацией токена."""
-
-        # Берем объект пользователя из формы, но пока НЕ сохраняем в базу данных
+        # Сохраняем пользователя, но делаем его неактивным
         user = form.save(commit=False)
-
-        # Генерируем уникальный токен и записываем его в поле модели
-        user.token = secrets.token_hex(20)
-
-        # Деактивируем пользователя, пока он не перейдет по ссылке из письма
         user.is_active = False
+        user.save()  # Сохраняем в БД, так как для генерации токена нужен ID пользователя
 
-        # Вызываем super().form_valid, который теперь сохранит пользователя уже вместе с токеном
-        response = super().form_valid(form)
+        # Кодируем ID пользователя в base64 (безопасно для URL)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-        # Получаем хост откуда пришел пользователь
+        # Генерируем безопасный криптографический токен со сроком действия
+        token = default_token_generator.make_token(user)
+
+        # Автоматически определяем протокол (http или https) и хост
+        scheme = "https" if self.request.is_secure() else "http"
         host = self.request.get_host()
 
-        # Формируем ссылку для подтверждения
-        activation_url = f'http://{host}/users/email-confirm/{user.token}/'
+        # Формируем ссылку, передавая и uid, и токен
+        activation_url = f"{scheme}://{host}/users/email-confirm/{uid}/{token}/"
 
-        # Отправляем приветственное письмо
+        # Отправляем письмо
         send_mail(
             subject='Подтверждение регистрации',
             message=f'Спасибо за регистрацию! Для активации аккаунта перейдите по ссылке: {activation_url}',
@@ -51,24 +49,28 @@ class RegisterView(CreateView):
             fail_silently=True
         )
 
-        return response
+        return redirect(self.success_url)
 
 
 class EmailConfirmView(View):
-    """Представление для активации аккаунта по токену из письма."""
+    """Представление для активации аккаунта по uid и токену."""
 
-    def get(self, request, token):
-        # Ищем пользователя с таким токеном, если не нашли — вернем ошибку 404
-        user = get_object_or_404(CustomUser, token=token)
+    def get(self, request, uidb64, token):
+        try:
+            # Декодируем ID пользователя обратно из base64
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            user = None
 
-        # Активируем пользователя
-        user.is_active = True
-        # Очищаем токен, чтобы ссылку нельзя было использовать повторно
-        user.token = None
-        user.save()
-
-        # Перенаправляем на страницу успешного входа
-        return redirect("users:login")
+        # Проверяем, существует ли пользователь и валиден ли токен (не истек ли срок)
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return redirect("users:login")
+        else:
+            # Если токен устарел или неверный, показываем страницу с ошибкой
+            return render(request, "users/email_confirmation_failed.html")
 
 
 class EmailConfirmationSentView(TemplateView):

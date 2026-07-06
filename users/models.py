@@ -39,19 +39,13 @@ class CustomUser(AbstractUser):
         verbose_name = 'Аватар',
         help_text = 'Загрузите аватар'
     )
-    token = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        verbose_name='Token'
-    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользлватели'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.email

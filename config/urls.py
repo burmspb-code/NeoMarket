@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import TemplateView
 
 urlpatterns = [
     # Главная страница
@@ -10,8 +9,6 @@ urlpatterns = [
     path("", include("catalog.urls", namespace="catalog")),
     # Страница для администрирования
     path("admin/", admin.site.urls),
-    # Страница для администрирования
-    path("catalog/", include("catalog.urls", namespace="catalog")),
     # Страница интернет магазина
     path("blog/", include("blog.urls", namespace="blog")),
     # Страница библиотеки книг

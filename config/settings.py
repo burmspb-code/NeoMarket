@@ -153,3 +153,7 @@ LOGOUT_REDIRECT_URL = 'catalog:home' # Куда направлять после 
 
 # Регион по умолчанию для валидации номеров (ISO 3166-1 alpha-2)
 PHONENUMBER_DEFAULT_REGION = 'RU'
+
+# Время жизни токена для восстановления пароля и активации аккаунта (24 часа)
+# PASSWORD_RESET_TIMEOUT = 24 * 60 * 60  # 86400 секунд
+PASSWORD_RESET_TIMEOUT = 60  # 60 секунд
