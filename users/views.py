@@ -1,20 +1,37 @@
 """Представления для управления учетными записями пользователя с безопасными токенами."""
 
+import logging
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LoginView  # Добавлен импорт для страницы входа
 from django.core.mail import send_mail
+from django.db import transaction
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, UpdateView
 from django.views.generic.edit import CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import UpdateView
-from .forms import UserProfileForm
 
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, UserProfileForm  # Объединено в одну строку
 from .models import CustomUser
+
+
+class CustomLoginView(LoginView):
+    """Кастомное представление входа для автоматической подстановки email."""
+
+    template_name = "users/login.html"
+
+    def get_initial(self):
+        initial = super().get_initial()
+        # Вытаскиваем email из GET-параметра ?email=...
+        email_from_url = self.request.GET.get("email")
+        if email_from_url:
+            # В стандартной форме аутентификации поле логина называется 'username'
+            initial["username"] = email_from_url
+        return initial
 
 
 class RegisterView(CreateView):
@@ -25,34 +42,50 @@ class RegisterView(CreateView):
     success_url = reverse_lazy("users:email_confirmation_sent")
 
     def form_valid(self, form):
-        # Сохраняем пользователя, но делаем его неактивным
-        user = form.save(commit=False)
-        user.is_active = False
-        user.save()  # Сохраняем в БД, так как для генерации токена нужен ID пользователя
+        # Открываем транзакцию: если письмо не уйдёт, пользователь не создастся в БД
+        with transaction.atomic():
+            # Создаем неактивного пользователя
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
 
-        # Кодируем ID пользователя в base64 (безопасно для URL)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
+            # Генерируем uid и токен
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
 
-        # Генерируем безопасный криптографический токен со сроком действия
-        token = default_token_generator.make_token(user)
+            # Собираем ссылку активации
+            relative_url = reverse(
+                "users:email_confirm", kwargs={"uidb64": uid, "token": token}
+            )
+            scheme = "https" if self.request.is_secure() else "http"
+            host = self.request.get_host()
+            activation_url = f"{scheme}://{host}{relative_url}"
 
-        # Автоматически определяем протокол (http или https) и хост
-        scheme = "https" if self.request.is_secure() else "http"
-        host = self.request.get_host()
+            try:
+                # Отправляем письмо с обязательной генерацией исключения при сбое
+                send_mail(
+                    subject="Подтверждение регистрации",
+                    message=f"Спасибо за регистрацию! Ссылка для активации: {activation_url}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+                # Если отправка прошла успешно, перенаправляем на success_url
+                return redirect(self.success_url)
 
-        # Формируем ссылку, передавая и uid, и токен
-        activation_url = f"{scheme}://{host}/users/email-confirm/{uid}/{token}/"
+            except Exception:
+                # Показываем понятную ошибку пользователю на фронтенде
+                messages.error(
+                    self.request,
+                    "Произошла ошибка при отправке письма с подтверждением. "
+                    "Пожалуйста, проверьте правильность ввода email или попробуйте позже.",
+                )
 
-        # Отправляем письмо
-        send_mail(
-            subject="Подтверждение регистрации",
-            message=f"Спасибо за регистрацию! Для активации аккаунта перейдите по ссылке: {activation_url}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=True,
-        )
+                # Отменяем сохранение пользователя в базе данных
+                transaction.set_rollback(True)
 
-        return redirect(self.success_url)
+                # Возвращаем пользователя на форму с сохраненными данными полей
+                return self.render_to_response(self.get_context_data(form=form))
 
 
 class EmailConfirmView(View):
@@ -60,7 +93,7 @@ class EmailConfirmView(View):
 
     def get(self, request, uidb64, token):
         try:
-            # Декодируем ID пользователя обратно из base64
+            # ИСПРАВЛЕНО: Используем корректное имя модели CustomUser вместо User
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
@@ -70,7 +103,16 @@ class EmailConfirmView(View):
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            return redirect("users:login")
+
+            # Добавляем красивое уведомление, которое отобразится на странице входа
+            messages.success(
+                request,
+                "Ваш аккаунт успешно активирован! Пожалуйста, войдите в систему.",
+            )
+
+            # Формируем URL для страницы входа с GET-параметром email
+            login_url = reverse("users:login")
+            return redirect(f"{login_url}?email={user.email}")
         else:
             # Если токен устарел или неверный, показываем страницу с ошибкой
             return render(request, "users/email_confirmation_failed.html")
