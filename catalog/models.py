@@ -17,13 +17,13 @@ class Category(models.Model):
         verbose_name="Описание", help_text="Введите описание категории"
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "категория"
         verbose_name_plural = "категории"
         ordering = ["name"]
+
+    def __str__(self):
+        return self.name
 
 
 class Product(models.Model):
@@ -72,13 +72,16 @@ class Product(models.Model):
         verbose_name="Опубликован"
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "товар"
         verbose_name_plural = "товары"
         ordering = ["-created_at", "published"]
+        permissions = [
+            ("can_unpublish_product", "Может скрывать продукт"),
+        ]
+
+    def __str__(self):
+        return self.name
 
 
 class ProductImage(models.Model):

@@ -133,19 +133,29 @@
                     </div>
                     
                     <!-- БЛОК АДМИНИСТРИРОВАНИЯ: РЕДАКТИРОВАНИЕ И УДАЛЕНИЕ -->
-                    <div class="row g-2">
-                        <div class="col-sm-6">
-                            <a href="{% url 'catalog:product_edit' product.pk %}" class="btn btn-outline-warning w-100 py-2 fw-semibold">
-                                <i class="bi bi-pencil-square me-2"></i>Редактировать
-                            </a>
+                    {% if perms.catalog.change_product or perms.catalog.delete_product %}
+                        <div class="row g-2 mt-2">
+
+                            {# Кнопка Редактировать: видна только при наличии права change_product #}
+                            {% if perms.catalog.change_product %}
+                                <div class="{% if perms.catalog.delete_product %}col-sm-6{% else %}col-12{% endif %}">
+                                    <a href="{% url 'catalog:product_edit' product.pk %}" class="btn btn-outline-warning w-100 py-2 fw-semibold">
+                                        <i class="bi bi-pencil-square me-2"></i>Редактировать
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            {# Кнопка Удалить: видна только при наличии права delete_product #}
+                            {% if perms.catalog.delete_product %}
+                                <div class="{% if perms.catalog.change_product %}col-sm-6{% else %}col-12{% endif %}">
+                                    <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-outline-danger w-100 py-2 fw-semibold">
+                                        <i class="bi bi-trash me-2"></i>Удалить товар
+                                    </a>
+                                </div>
+                            {% endif %}
+
                         </div>
-                        <div class="col-sm-6">
-                            <!-- Просто ссылка, ведущая на страницу подтверждения -->
-                            <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-outline-danger w-100 py-2 fw-semibold">
-                                <i class="bi bi-trash me-2"></i>Удалить товар
-                            </a>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
 
             </div>

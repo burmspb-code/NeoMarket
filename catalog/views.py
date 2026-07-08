@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views import View
 
@@ -49,7 +49,7 @@ class CatalogListView(ListView):
         )
 
 # Логика для страницы описания товара
-class ProductDetailView(LoginRequiredMixin, DetailView):
+class ProductDetailView(DetailView):
     model = Product
     context_object_name = "product"
 
@@ -58,8 +58,10 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         # Базовый оптимизированный запрос
         base_queryset = super().get_queryset().prefetch_related("images").select_related("category")
 
-        # Проверяем, есть ли у пользователя право просматривать любые продукты
-        if user.has_perm('catalog.view_product'):
+        # Проверяем права БЕЗОПАСНО (работает и для гостей, и для авторизованных)
+        # Метод has_perm вернет False для анонимного пользователя без ошибок
+        if user.is_authenticated and user.has_perm('catalog.can_unpublish_product'):
+            # Модераторы и админы видят абсолютно все товары (включая черновики)
             return base_queryset
 
         # Всем остальным (у кого нет этого права) показываем только опубликованные
@@ -113,12 +115,21 @@ class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 
 # Логика для редактирования товара
-class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Product
     form_class = ProductForm
     context_object_name = "product"
     success_url = reverse_lazy("catalog:catalog_list")
     success_message = "Товар успешно отредактирован!"
+
+    # Указываем системное право Django на изменение, которое мы выдали модераторам в миграции
+    permission_required = "catalog.change_product"
+
+    def get_queryset(self):
+        # Так как PermissionRequiredMixin уже отсек всех пользователей без прав,
+        # здесь будут находиться ТОЛЬКО модераторы и администраторы.
+        # Поэтому мы просто возвращаем весь оптимизированный запрос без лишних фильтров.
+        return super().get_queryset().prefetch_related("images").select_related("category")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
