@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views import View
 
@@ -37,7 +38,7 @@ class CatalogListView(ListView):
 
 
 # Логика для страницы описания товара
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     context_object_name = "product"
 
@@ -46,21 +47,20 @@ class ProductDetailView(DetailView):
 
 
 # Логика удаления товара
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("catalog:catalog_list")
 
 
 # Логика для добавления нового товара
-class ProductCreateView(SuccessMessageMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Product
     context_object_name = "product"
     form_class = ProductForm
     success_url = reverse_lazy("catalog:catalog_list")
     success_message = "Новый товар успешно добавлен в каталог!"
 
-    # Передаем пустой формсет в контекст страницы добавления
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
@@ -71,25 +71,29 @@ class ProductCreateView(SuccessMessageMixin, CreateView):
             context["image_formset"] = ProductImageFormSet()
         return context
 
-    # Валидируем и сохраняем картинки вместе с созданным товаром
     def form_valid(self, form):
+        # Получаем контекст, где уже лежит заполненный POST-данными формсет
         context = self.get_context_data()
         image_formset = context["image_formset"]
 
-        if form.is_valid() and image_formset.is_valid():
-            self.object = form.save()
+        # Проверяем ТОЛЬКО формсет, так как основная форма уже валидна
+        if image_formset.is_valid():
+            # Сначала сохраняем продукт (Django под капотом сделает self.object = form.save())
+            response = super().form_valid(form)
+
+            # Привязываем сохраненный продукт к формсету изображений
             image_formset.instance = self.object
             image_formset.save()
-            return super().form_valid(form)
+
+            return response
         else:
-            # ИСПРАВЛЕНО: передаем в шаблон именно тот объект image_formset, который содержит ошибки!
-            return self.render_to_response(
-                {"form": form, "image_formset": image_formset, "product": self.object}
-            )
+            # Если формсет невалиден, вызываем стандартный метод form_invalid.
+            # Он автоматически вернет страницу с ошибками формы и формсета.
+            return self.form_invalid(form)
 
 
 # Логика для редактирования товара
-class ProductUpdateView(SuccessMessageMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Product
     form_class = ProductForm
     context_object_name = "product"
@@ -120,19 +124,25 @@ class ProductUpdateView(SuccessMessageMixin, UpdateView):
             return self.render_to_response(self.get_context_data(form=form))
 
 
-# Логика удаления только фотографии товара
-class ProductDeleteImageView(View):
-    def post(self, request, pk, *args, **kwargs):
-        product = get_object_or_404(Product, pk=pk)
+class ProductDeleteImageView(LoginRequiredMixin, View):
+    def post(self, request, image_pk, *args, **kwargs):
+        # Ищем конкретную картинку, попутно проверяя, существует ли она
+        image_instance = get_object_or_404(ProductImage, pk=image_pk)
 
-        first_image = product.images.first()
-        if first_image:
-            if first_image.image:
-                first_image.image.delete(save=False)  # Физически стираем файл
-            first_image.delete()  # Удаляем запись из таблицы ProductImage
-            messages.success(request, "Фотография товара успешно удалена!")
+        # Запоминаем ID товара, чтобы после удаления вернуться на страницу его редактирования
+        product_pk = image_instance.product.id
 
-        return redirect("catalog:product_edit", pk=pk)
+        # Физически удаляем файл с диска/облака
+        if image_instance.image:
+            image_instance.image.delete(save=False)
+
+        # Удаляем запись из базы данных
+        image_instance.delete()
+
+        messages.success(request, "Фотография товара успешно удалена!")
+
+        # Перенаправляем обратно в редактирование этого товара
+        return redirect("catalog:product_edit", pk=product_pk)
 
 
 # Логика для контактов с формой обратной связи

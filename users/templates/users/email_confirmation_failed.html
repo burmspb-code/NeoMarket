@@ -1,0 +1,17 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Ошибка активации{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <div class="card shadow border-0 p-5 mx-auto" style="max-width: 500px;">
+        <i class="bi bi-exclamation-triangle text-danger display-1 mb-4"></i>
+        <h2 class="fw-bold mb-3">Ошибка активации</h2>
+        <p class="text-muted">Ссылка для подтверждения недействительна или её срок действия истек. Пожалуйста, попробуйте зарегистрироваться снова или обратитесь в поддержку.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+            <a href="{% url 'users:register' %}" class="btn btn-primary">Повторить регистрацию</a>
+            <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">На главную входа</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

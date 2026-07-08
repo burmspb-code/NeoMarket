@@ -1,11 +1,8 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}Регистрация нового пользователя{% endblock %}
+{% block title %}Редактирование профиля{% endblock %}
 
 {% block content %}
-<!-- Подключение JS-скриптов капчи -->
-{{ form.media }}
-
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
@@ -13,21 +10,21 @@
                 <div class="card-body p-4 p-sm-5">
 
                     <h2 class="card-title text-center mb-4 fw-bold text-dark">
-                        <i class="bi bi-person-plus-fill text-primary me-2"></i>Регистрация
+                        <i class="bi bi-pencil-square text-primary me-2"></i>Мой профиль
                     </h2>
 
+                    <!-- Важно: enctype="multipart/form-data" необходим для корректной загрузки аватара -->
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
 
-                        <!-- Выводим основные текстовые поля (Email, Имя, Фамилия) -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary w-100">
-                                <span class="d-block mb-1">{{ form.email.label }}</span>
-                                {{ form.email }}
-                            </label>
-                            {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|striptags }}</div>{% endif %}
-                        </div>
+                        <!-- Отображение текущего аватара, если он загружен -->
+                        {% if user.avatar %}
+                            <div class="text-center mb-4">
+                                <img src="{{ user.avatar.url }}" alt="Аватар" class="rounded-circle shadow-sm" style="width: 1200px; height: 120px; object-fit: cover;">
+                            </div>
+                        {% endif %}
 
+                        <!-- Имя -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-secondary w-100">
                                 <span class="d-block mb-1">{{ form.first_name.label }}</span>
@@ -36,6 +33,7 @@
                             {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors|striptags }}</div>{% endif %}
                         </div>
 
+                        <!-- Фамилия -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-secondary w-100">
                                 <span class="d-block mb-1">{{ form.last_name.label }}</span>
@@ -44,7 +42,7 @@
                             {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors|striptags }}</div>{% endif %}
                         </div>
 
-                        <!-- Выводим выпадающие списки и файлы (Страна, Телефон, Аватар) -->
+                        <!-- Страна -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-secondary w-100">
                                 <span class="d-block mb-1">{{ form.country.label }}</span>
@@ -53,14 +51,17 @@
                             {% if form.country.errors %}<div class="invalid-feedback d-block">{{ form.country.errors|striptags }}</div>{% endif %}
                         </div>
 
+                        <!-- Телефон -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-secondary w-100">
                                 <span class="d-block mb-1">{{ form.phone_number.label }}</span>
                                 {{ form.phone_number }}
                             </label>
                             {% if form.phone_number.errors %}<div class="invalid-feedback d-block">{{ form.phone_number.errors|striptags }}</div>{% endif %}
+                            {% if form.phone_number.help_text %}<div class="form-text text-muted small">{{ form.phone_number.help_text }}</div>{% endif %}
                         </div>
 
+                        <!-- Аватар (Загрузка файла) -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-secondary w-100">
                                 <span class="d-block mb-1">{{ form.avatar.label }}</span>
@@ -69,37 +70,6 @@
                             {% if form.avatar.errors %}<div class="invalid-feedback d-block">{{ form.avatar.errors|striptags }}</div>{% endif %}
                         </div>
 
-                        <!-- Выводим поля паролей из стандартной UserCreationForm (password1 и password2) -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary w-100">
-                                <span class="d-block mb-1">Пароль</span>
-                                {{ form.password1 }}
-                            </label>
-                            {% if form.password1.errors %}<div class="invalid-feedback d-block">{{ form.password1.errors|striptags }}</div>{% endif %}
-                            {% if form.password1.help_text %}<div class="form-text text-muted small">{{ form.password1.help_text|safe }}</div>{% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary w-100">
-                                <span class="d-block mb-1">Подтверждение пароля</span>
-                                {{ form.password2 }}
-                            </label>
-                            {% if form.password2.errors %}<div class="invalid-feedback d-block">{{ form.password2.errors|striptags }}</div>{% endif %}
-                        </div>
-
-                        <!-- КАПЧА:  -->
-                        <div class="mb-4 d-flex flex-column align-items-center justify-content-center">
-                            <div class="my-2">
-                                {{ form.captcha }}
-                            </div>
-                            {% if form.captcha.errors %}
-                                <div class="invalid-feedback d-block text-center mt-1">
-                                    {{ form.captcha.errors|striptags }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Ошибки всей формы -->
                         {% if form.non_field_errors %}
                             <div class="alert alert-danger border-0 shadow-sm mb-3" role="alert">
                                 {% for error in form.non_field_errors %}
@@ -110,16 +80,11 @@
 
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg shadow-sm">
-                                <i class="bi bi-check-circle-fill me-2"></i>Создать аккаунт
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i>Сохранить изменения
                             </button>
+                            <a href="{% url 'catalog:home' %}" class="btn btn-outline-secondary">Отмена</a>
                         </div>
                     </form>
-
-                    <div class="text-center mt-4 border-top pt-3">
-                        <span class="text-muted small">Уже зарегистрированы?</span>
-                        <!-- noinspection HtmlUnknownTarget -->
-                        <a href="{% url 'users:login' %}" class="text-decoration-none small fw-bold ms-1">Войти</a>
-                    </div>
 
                 </div>
             </div>
