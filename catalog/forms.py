@@ -10,6 +10,12 @@ from django.forms import inlineformset_factory
 from .models import Category, Product, ProductImage
 
 
+# Варианты для радиокнопки
+PUBLISHED_CHOICES = [
+    (True, "Да"),
+    (False, "Нет")
+]
+
 class CategoryForm(forms.ModelForm):
     """Форма для категорий."""
 
@@ -40,7 +46,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ["name", "sku", "description", "category", "price"]
+        fields = ["name", "sku", "description", "category", "price", "published"]
 
         widgets = {
             "name": forms.TextInput(
@@ -51,15 +57,18 @@ class ProductForm(forms.ModelForm):
                 attrs={"rows": 4, "placeholder": "Введите описание товара..."}
             ),
             "price": forms.NumberInput(attrs={"placeholder": "0.00"}),
+            "published": forms.RadioSelect(choices=PUBLISHED_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):
-        """Автоматически добавляем Bootstrap-класс 'form-control' ко всем полям."""
+        """Автоматически добавляем Bootstrap-классы ко всем полям."""
         super().__init__(*args, **kwargs)
+
         for field_name, field in self.fields.items():
             if field_name == "category":
                 field.widget.attrs.update({"class": "form-select"})
-            else:
+            elif field_name != "published":
+                # Добавляем класс ко всем полям, КРОМЕ радиокнопок published
                 field.widget.attrs.update({"class": "form-control"})
 
     def clean_name(self):

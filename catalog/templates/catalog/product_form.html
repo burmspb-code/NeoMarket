@@ -17,14 +17,34 @@
                 <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
 
-                    <!-- Вывод полей формы циклом (название, артикул, описание, стоимость) -->
+                    <!-- Вывод полей формы циклом (название, артикул, описание, стоимость, опубликован) -->
                     {% for field in form %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">
                                 {{ field.label }}
                             </label>
 
-                            {{ field }}
+                            {% if field.field.widget.input_type == 'radio' %}
+                                <!-- Красивый горизонтальный вывод радиокнопок Bootstrap -->
+                                <div class="d-flex gap-4 mt-2">
+                                    {% for radio in field %}
+                                        <div class="form-check form-check-inline m-0">
+                                            <input type="radio"
+                                                   name="{{ radio.data.name }}"
+                                                   value="{{ radio.data.value }}"
+                                                   id="{{ radio.id_for_label }}"
+                                                   class="form-check-input"
+                                                   {% if radio.data.selected %}checked{% endif %}>
+                                            <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <!-- Вывод всех стандартных полей (ввод текста, чисел, селекты) -->
+                                {{ field }}
+                            {% endif %}
 
                             <!-- Вывод ошибок валидации поля, если они есть -->
                             {% if field.errors %}
@@ -34,7 +54,6 @@
                             {% endif %}
                         </div>
                     {% endfor %}
-
                     <!-- ДИНАМИЧЕСКАЯ ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ ТОВАРА -->
                     {% if image_formset %}
                         <h3 class="h5 fw-bold text-dark mt-4 mb-3">Галерея изображений товара</h3>

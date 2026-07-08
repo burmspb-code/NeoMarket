@@ -67,6 +67,10 @@ class Product(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата изменения")
+    published = models.BooleanField(
+        default=False,
+        verbose_name="Опубликован"
+    )
 
     def __str__(self):
         return self.name
@@ -74,7 +78,7 @@ class Product(models.Model):
     class Meta:
         verbose_name = "товар"
         verbose_name_plural = "товары"
-        ordering = ["-created_at"]
+        ordering = ["-created_at", "published"]
 
 
 class ProductImage(models.Model):

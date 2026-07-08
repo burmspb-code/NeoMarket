@@ -25,8 +25,15 @@ class HomeListView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Product.objects.all().prefetch_related("images").order_by("id")
-
+        # Фильтруем только опубликованные товары
+        # Оптимизируем запросы: категории (SQL JOIN) и картинки (отдельный быстрый запрос)
+        # Сортируем (для пагинации обязательна стабильная сортировка, "id" отлично подходит)
+        return (
+            Product.objects.filter(published=True)
+            .select_related("category")
+            .prefetch_related("images")
+            .order_by("id")
+        )
 
 # Логика для страницы каталога
 class CatalogListView(ListView):
@@ -34,8 +41,12 @@ class CatalogListView(ListView):
     context_object_name = "products"
 
     def get_queryset(self):
-        return Product.objects.all().prefetch_related("images").order_by("id")
-
+        return (
+            Product.objects.filter(published=True)
+            .select_related("category")
+            .prefetch_related("images")
+            .order_by("id")
+        )
 
 # Логика для страницы описания товара
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -43,7 +54,16 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "product"
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("images")
+        user = self.request.user
+        # Базовый оптимизированный запрос
+        base_queryset = super().get_queryset().prefetch_related("images").select_related("category")
+
+        # Проверяем, есть ли у пользователя право просматривать любые продукты
+        if user.has_perm('catalog.view_product'):
+            return base_queryset
+
+        # Всем остальным (у кого нет этого права) показываем только опубликованные
+        return base_queryset.filter(published=True)
 
 
 # Логика удаления товара

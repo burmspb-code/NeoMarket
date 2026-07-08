@@ -7,7 +7,7 @@ from .models import CustomUser
 class CustomUserAdmin(UserAdmin):
     """Настройка отображения кастомной модели пользователя в админке."""
 
-    # Исправляем ошибку сортировки (указываем email вместо дефолтного username)
+    # Сортировка по email
     ordering = ("email",)
 
     # Убрали 'username' из списка, так как этого поля больше нет в модели
@@ -18,6 +18,7 @@ class CustomUserAdmin(UserAdmin):
         "is_staff",
         "is_superuser",
         "is_active",
+        "get_groups",
     )
 
     # Поля, по которым можно делать фильтрацию в правой колонке админки
@@ -44,3 +45,8 @@ class CustomUserAdmin(UserAdmin):
         ),
         ("Важные даты", {"fields": ("last_login", "date_joined")}),
     )
+
+    @admin.display(description='Группы')
+    def get_groups(self, obj):
+        # Собираем имена всех групп пользователя через запятую
+        return ", ".join([group.name for group in obj.groups.all()])
