@@ -20,6 +20,7 @@ class ProductAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
         "published",
+        "owner",
     )
 
     # Добавляем фильтр справа
