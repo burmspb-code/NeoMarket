@@ -16,17 +16,17 @@
    poetry install
    ```
 
-3. **Запустите проект с демонстрационными данными:**
-   Для применения миграций, загрузки каталога (категорий, товаров и галереи изображений) и старта локального сервера выполните в терминале:
+3. **Примените миграции и загрузите демонстрационные данные:**
+   Для автоматического создания структуры базы данных, наполнения каталога товарами и старта локального сервера выполните в терминале:
 
    * **Для Linux / macOS / Git Bash:**
      ```bash
-     poetry run python manage.py migrate && poetry run python manage.py loaddata catalog/fixtures/category_fixture.json catalog/fixtures/product_fixture.json catalog/fixtures/product_images_dump.json && poetry run python manage.py runserver
+     poetry run python manage.py migrate && poetry run python manage.py loaddata product_fixture && poetry run python manage.py runserver
      ```
    * **Для Windows (PowerShell):**
      ```powershell
-     poetry run python manage.py migrate; poetry run python manage.py loaddata catalog/fixtures/category_fixture.json catalog/fixtures/product_fixture.json catalog/fixtures/product_images_dump.json; poetry run python manage.py runserver
+     poetry run python manage.py migrate; poetry run python manage.py loaddata product_fixture; poetry run python manage.py runserver
      ```
 
-   > 💡 **Важно:** Фикстуры восстанавливают только записи в базе данных. Чтобы на сайте отображались сами изображения товаров и текстуры, убедитесь, что папка `media/` скопирована в корень проекта.
+   > 💡 **Важно:** Фикстуры восстанавливают только записи в базе данных. Чтобы на сайте отображались сами изображения товаров, убедитесь, что папка `media/` присутствует в корне проекта.
 

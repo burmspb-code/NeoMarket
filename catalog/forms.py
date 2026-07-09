@@ -3,11 +3,13 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.forms import inlineformset_factory
 
 from .models import Category, Product, ProductImage
+
+# Варианты для радиокнопки
+PUBLISHED_CHOICES = [(True, "Да"), (False, "Нет")]
 
 
 class CategoryForm(forms.ModelForm):
@@ -40,7 +42,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ["name", "sku", "description", "category", "price"]
+        fields = ["name", "sku", "description", "category", "price", "published"]
 
         widgets = {
             "name": forms.TextInput(
@@ -51,15 +53,25 @@ class ProductForm(forms.ModelForm):
                 attrs={"rows": 4, "placeholder": "Введите описание товара..."}
             ),
             "price": forms.NumberInput(attrs={"placeholder": "0.00"}),
+            "published": forms.RadioSelect(choices=PUBLISHED_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):
-        """Автоматически добавляем Bootstrap-класс 'form-control' ко всем полям."""
+        """Автоматически добавляем Bootstrap-классы ко всем полям."""
+        # Принимаем пользователя из контроллера (View)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
+
+        # ПРОВЕРКА ПРАВ: Если пользователя нет или он НЕ модератор
+        if self.user and not self.user.has_perm("catalog.can_unpublish_product"):
+            # Скрываем поле из вёрстки, чтобы обычный юзер его не видел
+            self.fields["published"].widget = forms.HiddenInput()
+
         for field_name, field in self.fields.items():
             if field_name == "category":
                 field.widget.attrs.update({"class": "form-select"})
-            else:
+            elif field_name != "published":
+                # Добавляем класс ко всем полям, КРОМЕ радиокнопок published
                 field.widget.attrs.update({"class": "form-control"})
 
     def clean_name(self):

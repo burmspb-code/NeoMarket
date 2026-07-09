@@ -1,9 +1,10 @@
-from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
+from django.urls import reverse_lazy
 from django.views import View
-
 from django.views.generic import (
     ListView,
     DetailView,
@@ -12,7 +13,7 @@ from django.views.generic import (
     DeleteView,
     TemplateView,
 )
-from django.urls import reverse_lazy
+
 from catalog.models import Product
 from .forms import ProductForm, ProductImageFormSet
 
@@ -25,7 +26,15 @@ class HomeListView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Product.objects.all().prefetch_related("images").order_by("id")
+        # Фильтруем только опубликованные товары
+        # Оптимизируем запросы: категории (SQL JOIN) и картинки (отдельный быстрый запрос)
+        # Сортируем (для пагинации обязательна стабильная сортировка, "id" отлично подходит)
+        return (
+            Product.objects.filter(published=True)
+            .select_related("category")
+            .prefetch_related("images")
+            .order_by("id")
+        )
 
 
 # Логика для страницы каталога
@@ -34,23 +43,71 @@ class CatalogListView(ListView):
     context_object_name = "products"
 
     def get_queryset(self):
-        return Product.objects.all().prefetch_related("images").order_by("id")
+        return (
+            Product.objects.filter(published=True)
+            .select_related("category")
+            .prefetch_related("images")
+            .order_by("id")
+        )
 
 
 # Логика для страницы описания товара
-class ProductDetailView(LoginRequiredMixin, DetailView):
+class ProductDetailView(DetailView):
     model = Product
     context_object_name = "product"
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("images")
+        user = self.request.user
+        # ИСПРАВЛЕНИЕ: Добавили "owner" в select_related, чтобы Django сразу знал создателя товара
+        base_queryset = (
+            super()
+            .get_queryset()
+            .prefetch_related("images")
+            .select_related("category", "owner")
+        )
+
+        # Проверяем права БЕЗОПАСНО (работает и для гостей, и для авторизованных)
+        if user.is_authenticated and user.has_perm("catalog.can_unpublish_product"):
+            # Модераторы и админы видят абсолютно все товары (включая черновики)
+            return base_queryset
+
+        # Всем остальным (у кого нет этого права) показываем только опубликованные
+        return base_queryset.filter(published=True)
 
 
 # Логика удаления товара
-class ProductDeleteView(LoginRequiredMixin, DeleteView):
+class ProductDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Product
-    template_name = "catalog/product_confirm_delete.html"
+    context_object_name = "product"
     success_url = reverse_lazy("catalog:catalog_list")
+    success_message = "Товар успешно снят с публикации и перенесен в архив!"
+
+    def dispatch(self, request, *args, **kwargs):
+        """Проверяем, имеет ли право пользователь архивировать этот товар."""
+        product = self.get_object()
+        user = request.user
+
+        # Допуск получают только владелец товара или модератор/админ с правом delete_product
+        if product.owner == user or user.has_perm("catalog.delete_product"):
+            return super().dispatch(request, *args, **kwargs)
+
+        raise PermissionDenied("Вы можете архивировать только собственные товары.")
+
+    def form_valid(self, form):
+        """Переопределяем удаление: вместо DELETE делаем UPDATE флага published."""
+        success_url = self.get_success_url()
+
+        # Меняем статус публикации на False (отправляем в архив)
+        self.object.published = False
+        self.object.save()
+
+        # Вызываем метод SuccessMessageMixin, чтобы зафиксировать сообщение об успехе
+        if self.success_message:
+            from django.contrib import messages
+
+            messages.success(self.request, self.success_message)
+
+        return HttpResponseRedirect(success_url)
 
 
 # Логика для добавления нового товара
@@ -60,6 +117,12 @@ class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = ProductForm
     success_url = reverse_lazy("catalog:catalog_list")
     success_message = "Новый товар успешно добавлен в каталог!"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Передаем текущего пользователя в форму
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -78,6 +141,13 @@ class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
         # Проверяем ТОЛЬКО формсет, так как основная форма уже валидна
         if image_formset.is_valid():
+            # НАЗНАЧАЕМ ВЛАДЕЛЬЦА И СТАТУС ДО СОХРАНЕНИЯ
+            form.instance.owner = self.request.user
+
+            # Безопасность: если не модератор, товар улетает на модерацию (черновик)
+            if not self.request.user.has_perm("catalog.can_unpublish_product"):
+                form.instance.published = False
+
             # Сначала сохраняем продукт (Django под капотом сделает self.object = form.save())
             response = super().form_valid(form)
 
@@ -100,6 +170,34 @@ class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy("catalog:catalog_list")
     success_message = "Товар успешно отредактирован!"
 
+    def dispatch(self, request, *args, **kwargs):
+        """Гибкая проверка прав: пускаем модераторов ИЛИ владельца товара."""
+        product = self.get_object()
+        user = request.user
+
+        # 1. Если пользователь — создатель товара (сравниваем ID для надежности)
+        # 2. ИЛИ у пользователя есть глобальное право модератора change_product
+        if product.owner.id == user.id or user.has_perm("catalog.change_product"):
+            return super().dispatch(request, *args, **kwargs)
+
+        # Во всех остальных случаях жестко возвращаем 403 ошибку
+        raise PermissionDenied("Вы можете редактировать только собственные товары.")
+
+    def get_queryset(self):
+        """Оптимизируем запросы к базе данных."""
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related("images")
+            .select_related("category", "owner")
+        )
+
+    def get_form_kwargs(self):
+        """Передаем текущего пользователя в форму, чтобы скрыть радиокнопки для продавцов."""
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
@@ -118,7 +216,6 @@ class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
-            # Вызываем родительский метод, чтобы SuccessMessageMixin зафиксировал сообщение
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))

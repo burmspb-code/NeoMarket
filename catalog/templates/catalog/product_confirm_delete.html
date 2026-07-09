@@ -3,38 +3,39 @@
 {% block title %}Подтверждение удаления — NeoMarket{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow border-0 p-4 text-center">
-                
-                <!-- Иконка предупреждения -->
-                <div class="text-danger mb-3">
-                    <i class="bi bi-exclamation-triangle display-1"></i>
-                </div>
-                
-                <h1 class="h3 fw-bold text-dark mb-3">Удаление товара</h1>
-                
-                <p class="text-muted mb-4">
-                    Вы уверены, что хотите навсегда удалить товар <strong class="text-dark">«{{ object.name }}»</strong>? Это действие нельзя будет отменить.
-                </p>
-                
-                <!-- Форма, которая отправит финальный POST запрос на удаление -->
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-danger btn-lg fw-bold py-2">
-                            <i class="bi bi-trash me-2"></i>Да, удалить окончательно
-                        </button>
-                        <a href="{% url 'catalog:product_detail' object.pk %}" class="btn btn-outline-secondary">
-                            Отмена
-                        </a>
-                    </div>
-                </form>
-                
-            </div>
+<!-- Внешний контейнер на всю высоту экрана для центрирования -->
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+
+    <!-- Ваша карточка (стили и отступы внутри остаются без изменений) -->
+    <div class="card p-4 text-center shadow-sm w-100" style="max-width: 500px;">
+
+        <!-- Иконка предупреждения -->
+        <div class="text-warning display-4 mb-3">
+            <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
+
+        <h2 class="fw-bold text-dark mb-3">Снятие товара с продажи</h2>
+
+        <p class="text-secondary small">
+            Вы уверены, что хотите перенести в архив и скрыть с витрины сайта товар
+            <strong class="text-dark">«{{ object.name }}»</strong>?
+            Покупатели больше не смогут его увидеть или заказать, но вы сможете восстановить его позже.
+        </p>
+
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+                <!-- Кнопка подтверждения скрытия -->
+                <button type="submit" class="btn btn-danger py-2 fw-semibold">
+                    <i class="bi bi-archive me-2"></i>Да, снять с продажи
+                </button>
+                <!-- Кнопка отмены (возврат назад) -->
+                <a href="javascript:history.back()" class="btn btn-outline-secondary py-2">
+                    Отмена
+                </a>
+            </div>
+        </form>
+
     </div>
 </div>
 {% endblock %}

@@ -133,19 +133,29 @@
                     </div>
                     
                     <!-- БЛОК АДМИНИСТРИРОВАНИЯ: РЕДАКТИРОВАНИЕ И УДАЛЕНИЕ -->
-                    <div class="row g-2">
-                        <div class="col-sm-6">
-                            <a href="{% url 'catalog:product_edit' product.pk %}" class="btn btn-outline-warning w-100 py-2 fw-semibold">
-                                <i class="bi bi-pencil-square me-2"></i>Редактировать
-                            </a>
+                    {% if perms.catalog.change_product or perms.catalog.delete_product or product.owner.id == user.id %}
+                        <div class="row g-2 mt-2">
+
+                            {# Кнопка Редактировать: видна модераторам ИЛИ владельцу товара #}
+                            {% if perms.catalog.change_product or product.owner.id == user.id %}
+                                <div class="{% if perms.catalog.delete_product or product.owner.id == user.id %}col-sm-6{% else %}col-12{% endif %}">
+                                    <a href="{% url 'catalog:product_edit' product.pk %}" class="btn btn-outline-warning w-100 py-2 fw-semibold">
+                                        <i class="bi bi-pencil-square me-2"></i>Редактировать
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            {# Кнопка Архивировать: видна модераторам ИЛИ владельцу товара #}
+                            {% if perms.catalog.delete_product or product.owner.id == user.id %}
+                                <div class="{% if perms.catalog.change_product or product.owner.id == user.id %}col-sm-6{% else %}col-12{% endif %}">
+                                    <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-outline-danger w-100 py-2 fw-semibold">
+                                        <i class="bi bi-archive me-2"></i>Снять с продажи
+                                    </a>
+                                </div>
+                            {% endif %}
+
                         </div>
-                        <div class="col-sm-6">
-                            <!-- Просто ссылка, ведущая на страницу подтверждения -->
-                            <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-outline-danger w-100 py-2 fw-semibold">
-                                <i class="bi bi-trash me-2"></i>Удалить товар
-                            </a>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
 
             </div>

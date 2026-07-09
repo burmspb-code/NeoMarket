@@ -1,23 +1,41 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}Удаление статьи — NeoMarket{% endblock %}
+{% block title %}Подтверждение архивации — NeoMarket{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <div class="card shadow-sm border-0 p-5">
-                <i class="bi bi-exclamation-triangle text-danger display-1 mb-4"></i>
-                <h1 class="h3 fw-bold mb-3">Удалить статью?</h1>
-                <p class="text-muted mb-4">Вы уверены, что хотите безвозвратно удалить статью <strong>«{{ object.title }}»</strong>?</p>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-lg px-4 me-2 fw-bold">Да, удалить</button>
-                    <a href="{% url 'blog:detail' object.pk %}" class="btn btn-outline-secondary btn-lg px-4">Отмена</a>
-                </form>
-            </div>
+<!-- Внешний контейнер на всю высоту экрана для центрирования -->
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+
+    <!-- Ваша карточка (стили и отступы внутри остаются без изменений) -->
+    <div class="card p-4 text-center shadow-sm w-100" style="max-width: 500px;">
+
+        <!-- Иконка предупреждения -->
+        <div class="text-warning display-4 mb-3">
+            <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
+
+        <h2 class="fw-bold text-dark mb-3">Архивация статьи</h2>
+
+        <p class="text-secondary small">
+            Вы уверены, что хотите перенести в архив и скрыть из ленты блога статью
+            <strong class="text-dark">«{{ object.title }}»</strong>?
+            Читатели больше не смогут увидеть её в общем списке, но вы сможете восстановить её позже.
+        </p>
+
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+                <!-- Кнопка подтверждения скрытия (используем тот же btn-danger для визуального единообразия) -->
+                <button type="submit" class="btn btn-danger py-2 fw-semibold">
+                    <i class="bi bi-archive me-2"></i>Да, перенести в архив
+                </button>
+                <!-- Кнопка отмены (возврат назад) -->
+                <a href="javascript:history.back()" class="btn btn-outline-secondary py-2">
+                    Отмена
+                </a>
+            </div>
+        </form>
+
     </div>
 </div>
 {% endblock %}

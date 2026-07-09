@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -17,13 +18,13 @@ class Category(models.Model):
         verbose_name="Описание", help_text="Введите описание категории"
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "категория"
         verbose_name_plural = "категории"
         ordering = ["name"]
+
+    def __str__(self):
+        return self.name
 
 
 class Product(models.Model):
@@ -36,6 +37,8 @@ class Product(models.Model):
         price (DecimalField): Стоимость товара с точностью до двух знаков.
         created_at (DateTimeField): Дата и время автоматического добавления товара.
         updated_at (DateTimeField): Дата и время автоматического обновления товара.
+        owner (ForeignKey): Ссылка на владельца, который создал данный товар.
+        published (BooleanField): Признак публикации товара на сайте.
     """
 
     name = models.CharField(
@@ -50,7 +53,8 @@ class Product(models.Model):
         help_text="Введите уникальный артикул товара (обязательно)",
     )
     description = models.TextField(
-        verbose_name="Описание", help_text="Введите описание товара"
+        verbose_name="Описание",
+        help_text="Введите описание товара",
     )
     category = models.ForeignKey(
         Category,
@@ -67,14 +71,24 @@ class Product(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата изменения")
-
-    def __str__(self):
-        return self.name
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Подключение кастомной модели пользователя
+        on_delete=models.CASCADE,
+        related_name="products",
+        verbose_name="Владелец",
+    )
+    published = models.BooleanField(default=False, verbose_name="Опубликован")
 
     class Meta:
         verbose_name = "товар"
         verbose_name_plural = "товары"
-        ordering = ["-created_at"]
+        ordering = ["-created_at", "owner", "published"]
+        permissions = [
+            ("can_unpublish_product", "Может скрывать продукт"),
+        ]
+
+    def __str__(self):
+        return self.name
 
 
 class ProductImage(models.Model):

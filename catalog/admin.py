@@ -9,6 +9,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    # Поля, которые будут отображаться в таблице
     list_display = (
         "id",
         "name",
@@ -18,9 +19,40 @@ class ProductAdmin(admin.ModelAdmin):
         "price",
         "created_at",
         "updated_at",
+        "published",
+        "owner",
     )
+
+    # Добавляем фильтр справа
     list_filter = ("category",)
+
+    # Поля, по которым работает поиск
     search_fields = ("name", "description")
+
+    # Поля, на которые можно нажать для перехода к редактированию
+    list_display_links = ["name", "sku"]
+
+    # Регистрируем наши кастомные массовые действия
+    actions = ["make_published", "make_unpublished"]
+
+    @admin.action(description="Опубликовать выбранные товары")
+    def make_published(self, request, queryset):
+        """Массово проставляет статус True (Опубликовано)."""
+        updated = queryset.update(published=True)
+        # Показываем красивое зеленое уведомление вверху админки
+        self.message_user(
+            request, f"Статус успешно изменен. Опубликовано товаров: {updated} шт."
+        )
+
+    @admin.action(description="Снять с публикации выбранные товары")
+    def make_unpublished(self, request, queryset):
+        """Массово проставляет статус False (Черновик)."""
+        updated = queryset.update(published=False)
+        # Показываем уведомление
+        self.message_user(
+            request,
+            f"Статус успешно изменен. Снято с публикации товаров: {updated} шт.",
+        )
 
 
 @admin.register(ProductImage)

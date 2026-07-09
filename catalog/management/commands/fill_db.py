@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         # Загружаем данные из фикстур
         self.stdout.write("Loading fixture data...")
-        call_command("loaddata", "category_fixture.json")
+        call_command("loaddata", "groups_and_permissions.json")
         call_command("loaddata", "product_fixture.json")
 
         # Выводит сообщение в консоль

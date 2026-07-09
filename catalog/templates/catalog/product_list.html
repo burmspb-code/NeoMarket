@@ -52,11 +52,9 @@
                             <span class="fs-5 fw-bold text-danger">{{ product.price }} ₽</span>
                             <span class="badge bg-success-subtle text-success small">В наличии</span>
                         </div>
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'catalog:product_detail' pk=product.pk %}" class="btn btn-outline-primary btn-sm w-100 py-2 fw-bold">
-                                <i class="bi bi-eye me-1"></i> Подробнее
-                            </a >
-                        {% endif %}
+                        <a href="{% url 'catalog:product_detail' pk=product.pk %}" class="btn btn-outline-primary btn-sm w-100 py-2 fw-bold">
+                            <i class="bi bi-eye me-1"></i> Подробнее
+                        </a >
                     </div>
                 </div>
 
