@@ -46,7 +46,7 @@ class CustomUserAdmin(UserAdmin):
         ("Важные даты", {"fields": ("last_login", "date_joined")}),
     )
 
-    @admin.display(description='Группы')
+    @admin.display(description="Группы")
     def get_groups(self, obj):
         # Собираем имена всех групп пользователя через запятую
         return ", ".join([group.name for group in obj.groups.all()])

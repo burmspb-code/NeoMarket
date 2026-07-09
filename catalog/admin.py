@@ -35,15 +35,13 @@ class ProductAdmin(admin.ModelAdmin):
     # Регистрируем наши кастомные массовые действия
     actions = ["make_published", "make_unpublished"]
 
-
     @admin.action(description="Опубликовать выбранные товары")
     def make_published(self, request, queryset):
         """Массово проставляет статус True (Опубликовано)."""
         updated = queryset.update(published=True)
         # Показываем красивое зеленое уведомление вверху админки
         self.message_user(
-            request,
-            f"Статус успешно изменен. Опубликовано товаров: {updated} шт."
+            request, f"Статус успешно изменен. Опубликовано товаров: {updated} шт."
         )
 
     @admin.action(description="Снять с публикации выбранные товары")
@@ -53,7 +51,7 @@ class ProductAdmin(admin.ModelAdmin):
         # Показываем уведомление
         self.message_user(
             request,
-            f"Статус успешно изменен. Снято с публикации товаров: {updated} шт."
+            f"Статус успешно изменен. Снято с публикации товаров: {updated} шт.",
         )
 
 

@@ -36,6 +36,7 @@ class HomeListView(ListView):
             .order_by("id")
         )
 
+
 # Логика для страницы каталога
 class CatalogListView(ListView):
     model = Product
@@ -49,6 +50,7 @@ class CatalogListView(ListView):
             .order_by("id")
         )
 
+
 # Логика для страницы описания товара
 class ProductDetailView(DetailView):
     model = Product
@@ -58,13 +60,14 @@ class ProductDetailView(DetailView):
         user = self.request.user
         # ИСПРАВЛЕНИЕ: Добавили "owner" в select_related, чтобы Django сразу знал создателя товара
         base_queryset = (
-            super().get_queryset()
+            super()
+            .get_queryset()
             .prefetch_related("images")
             .select_related("category", "owner")
         )
 
         # Проверяем права БЕЗОПАСНО (работает и для гостей, и для авторизованных)
-        if user.is_authenticated and user.has_perm('catalog.can_unpublish_product'):
+        if user.is_authenticated and user.has_perm("catalog.can_unpublish_product"):
             # Модераторы и админы видят абсолютно все товары (включая черновики)
             return base_queryset
 
@@ -85,7 +88,7 @@ class ProductDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         user = request.user
 
         # Допуск получают только владелец товара или модератор/админ с правом delete_product
-        if product.owner == user or user.has_perm('catalog.delete_product'):
+        if product.owner == user or user.has_perm("catalog.delete_product"):
             return super().dispatch(request, *args, **kwargs)
 
         raise PermissionDenied("Вы можете архивировать только собственные товары.")
@@ -101,6 +104,7 @@ class ProductDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         # Вызываем метод SuccessMessageMixin, чтобы зафиксировать сообщение об успехе
         if self.success_message:
             from django.contrib import messages
+
             messages.success(self.request, self.success_message)
 
         return HttpResponseRedirect(success_url)
@@ -117,7 +121,7 @@ class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         # Передаем текущего пользователя в форму
-        kwargs['user'] = self.request.user
+        kwargs["user"] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -137,12 +141,11 @@ class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
         # Проверяем ТОЛЬКО формсет, так как основная форма уже валидна
         if image_formset.is_valid():
-
             # НАЗНАЧАЕМ ВЛАДЕЛЬЦА И СТАТУС ДО СОХРАНЕНИЯ
             form.instance.owner = self.request.user
 
             # Безопасность: если не модератор, товар улетает на модерацию (черновик)
-            if not self.request.user.has_perm('catalog.can_unpublish_product'):
+            if not self.request.user.has_perm("catalog.can_unpublish_product"):
                 form.instance.published = False
 
             # Сначала сохраняем продукт (Django под капотом сделает self.object = form.save())
@@ -174,7 +177,7 @@ class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
         # 1. Если пользователь — создатель товара (сравниваем ID для надежности)
         # 2. ИЛИ у пользователя есть глобальное право модератора change_product
-        if product.owner.id == user.id or user.has_perm('catalog.change_product'):
+        if product.owner.id == user.id or user.has_perm("catalog.change_product"):
             return super().dispatch(request, *args, **kwargs)
 
         # Во всех остальных случаях жестко возвращаем 403 ошибку
@@ -182,12 +185,17 @@ class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     def get_queryset(self):
         """Оптимизируем запросы к базе данных."""
-        return super().get_queryset().prefetch_related("images").select_related("category", "owner")
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related("images")
+            .select_related("category", "owner")
+        )
 
     def get_form_kwargs(self):
         """Передаем текущего пользователя в форму, чтобы скрыть радиокнопки для продавцов."""
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs["user"] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):

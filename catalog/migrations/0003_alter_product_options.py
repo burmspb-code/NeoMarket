@@ -4,14 +4,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0002_alter_product_options_product_published'),
+        ("catalog", "0002_alter_product_options_product_published"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='product',
-            options={'ordering': ['-created_at', 'published'], 'permissions': [('can_unpublish_product', 'Может скрывать продук')], 'verbose_name': 'товар', 'verbose_name_plural': 'товары'},
+            name="product",
+            options={
+                "ordering": ["-created_at", "published"],
+                "permissions": [("can_unpublish_product", "Может скрывать продук")],
+                "verbose_name": "товар",
+                "verbose_name_plural": "товары",
+            },
         ),
     ]

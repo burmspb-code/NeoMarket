@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -25,6 +26,12 @@ class Post(models.Model):
     )
     views_count = models.PositiveIntegerField(
         default=0, verbose_name="Количество просмотров"
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Кастомная модель пользователя (перем из глобальных настроек)
+        on_delete=models.CASCADE,
+        related_name="posts",
+        verbose_name="Владелец",
     )
 
     class Meta:

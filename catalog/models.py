@@ -69,24 +69,15 @@ class Product(models.Model):
         verbose_name="Стоимость",
         help_text="Введите стоимость товара",
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="Дата создания"
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name="Дата изменения"
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата изменения")
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, # Подключение кастомной модели пользователя
+        settings.AUTH_USER_MODEL,  # Подключение кастомной модели пользователя
         on_delete=models.CASCADE,
         related_name="products",
         verbose_name="Владелец",
     )
-    published = models.BooleanField(
-        default=False,
-        verbose_name="Опубликован"
-    )
+    published = models.BooleanField(default=False, verbose_name="Опубликован")
 
     class Meta:
         verbose_name = "товар"

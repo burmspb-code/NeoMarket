@@ -3,18 +3,14 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.forms import inlineformset_factory
 
 from .models import Category, Product, ProductImage
 
-
 # Варианты для радиокнопки
-PUBLISHED_CHOICES = [
-    (True, "Да"),
-    (False, "Нет")
-]
+PUBLISHED_CHOICES = [(True, "Да"), (False, "Нет")]
+
 
 class CategoryForm(forms.ModelForm):
     """Форма для категорий."""
@@ -63,13 +59,13 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Автоматически добавляем Bootstrap-классы ко всем полям."""
         # Принимаем пользователя из контроллера (View)
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
         # ПРОВЕРКА ПРАВ: Если пользователя нет или он НЕ модератор
-        if self.user and not self.user.has_perm('catalog.can_unpublish_product'):
+        if self.user and not self.user.has_perm("catalog.can_unpublish_product"):
             # Скрываем поле из вёрстки, чтобы обычный юзер его не видел
-            self.fields['published'].widget = forms.HiddenInput()
+            self.fields["published"].widget = forms.HiddenInput()
 
         for field_name, field in self.fields.items():
             if field_name == "category":
