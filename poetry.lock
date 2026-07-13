@@ -97,6 +97,22 @@ typing-extensions = "*"
 pyuca = ["pyuca"]
 
 [[package]]
+name = "django-debug-toolbar"
+version = "7.0.0"
+description = "A configurable set of panels that display various debug information about the current request/response."
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "django_debug_toolbar-7.0.0-py3-none-any.whl", hash = "sha256:656161388ce48384276342eeb16d532113ec670816fa1546cc3753730aa51b3d"},
+    {file = "django_debug_toolbar-7.0.0.tar.gz", hash = "sha256:ef7494c5b459c149e87cc2da88d86e944064945e86bd7b2d879093586b5fefbf"},
+]
+
+[package.dependencies]
+django = ">=5.2"
+sqlparse = ">=0.2"
+
+[[package]]
 name = "django-phonenumber-field"
 version = "8.4.0"
 description = "An international phone number field for django models."
@@ -828,4 +844,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "af815aa3cac2d3cffa2b2bba8f69590f3e73dd76b15595cea736a034722a3057"
+content-hash = "ff78b1a7a040500acac15762a2d17c48c83ba1a0851b978e364fca7f760759f7"
