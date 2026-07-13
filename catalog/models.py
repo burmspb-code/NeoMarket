@@ -77,12 +77,14 @@ class Product(models.Model):
         related_name="products",
         verbose_name="Владелец",
     )
-    published = models.BooleanField(default=False, verbose_name="Опубликован")
+    published = models.BooleanField(default=False,
+                                    db_index=True, # ставим индекс (значительно увеличивает скорость поиска на больших данных)
+                                    verbose_name="Опубликован")
 
     class Meta:
         verbose_name = "товар"
         verbose_name_plural = "товары"
-        ordering = ["-created_at", "owner", "published"]
+        ordering = ["-created_at"]
         permissions = [
             ("can_unpublish_product", "Может скрывать продукт"),
         ]
@@ -100,7 +102,6 @@ class ProductImage(models.Model):
 
     product = models.ForeignKey(
         Product,
-        to_field="sku",
         on_delete=models.CASCADE,
         related_name="images",  # Через это имя мы будем выводить список фото
         verbose_name="Товар",
