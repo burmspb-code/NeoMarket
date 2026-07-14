@@ -77,9 +77,11 @@ class Product(models.Model):
         related_name="products",
         verbose_name="Владелец",
     )
-    published = models.BooleanField(default=False,
-                                    db_index=True, # ставим индекс (значительно увеличивает скорость поиска на больших данных)
-                                    verbose_name="Опубликован")
+    published = models.BooleanField(
+        default=False,
+        db_index=True,  # ставим индекс (значительно увеличивает скорость поиска на больших данных)
+        verbose_name="Опубликован",
+    )
 
     class Meta:
         verbose_name = "товар"

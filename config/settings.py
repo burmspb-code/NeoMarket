@@ -26,13 +26,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Сторонние библиотеки
     "phonenumber_field",  # Модуль валидации номера телефона
     "django_countries",  # Модуль выбора страны из выпадающего списка
     "django_recaptcha",  # Модуль капчи
     "debug_toolbar",
-
     # Локальные приложения проекта
     "catalog",
     "library",
@@ -49,7 +47,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -69,6 +66,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "catalog.context_processors.categories_processor",
             ],
         },
     },

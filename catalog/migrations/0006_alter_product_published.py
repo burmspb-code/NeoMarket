@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0005_alter_product_options_product_owner'),
+        ("catalog", "0005_alter_product_options_product_owner"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='published',
-            field=models.BooleanField(db_index=True, default=False, verbose_name='Опубликован'),
+            model_name="product",
+            name="published",
+            field=models.BooleanField(
+                db_index=True, default=False, verbose_name="Опубликован"
+            ),
         ),
     ]

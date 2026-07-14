@@ -5,19 +5,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0006_alter_product_published'),
+        ("catalog", "0006_alter_product_published"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='product',
-            options={'ordering': ['-created_at'], 'permissions': [('can_unpublish_product', 'Может скрывать продукт')], 'verbose_name': 'товар', 'verbose_name_plural': 'товары'},
+            name="product",
+            options={
+                "ordering": ["-created_at"],
+                "permissions": [("can_unpublish_product", "Может скрывать продукт")],
+                "verbose_name": "товар",
+                "verbose_name_plural": "товары",
+            },
         ),
         migrations.AlterField(
-            model_name='productimage',
-            name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='catalog.product', verbose_name='Товар'),
+            model_name="productimage",
+            name="product",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="catalog.product",
+                verbose_name="Товар",
+            ),
         ),
     ]
