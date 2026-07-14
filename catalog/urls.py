@@ -1,4 +1,6 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
+
 from catalog.apps import CatalogConfig
 from catalog.views import (
     HomeListView,
@@ -21,7 +23,7 @@ urlpatterns = [
     # Страница с каталогом товаров
     path("catalog/", CatalogListView.as_view(), name="catalog_list"),
     # Страница с детальной информацией о товаре
-    path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
+    path("product/<int:pk>/", cache_page(60)(ProductDetailView.as_view()), name="product_detail"),
     # Страница с добавлением нового товара
     path("product/add/", ProductCreateView.as_view(), name="product_create"),
     # Страница для редактирования товара

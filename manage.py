@@ -3,37 +3,37 @@
 
 import os
 import sys
+import socket
 import subprocess
 
 
 def start_local_redis():
-    # Запускаем Redis только если мы пишем 'runserver' или заходим в 'shell'
-    if len(sys.argv) > 1 and sys.argv[1] in ["runserver", "shell"]:
-        # Проверяем, запущен ли уже Redis, чтобы не плодить процессы
-        # Ошибка 10061 означает, что порт свободен, значит Redis выключен
-        import socket
-
+    # Запускаем проверку только при старте сервера или шелла
+    # RUN_MAIN гарантирует, что код выполнится только один раз в основном процессе
+    if os.environ.get('RUN_MAIN') == 'true' and len(sys.argv) > 1 and sys.argv[1] in ["runserver", "shell"]:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1.0) # Задаем таймаут, чтобы проверка не зависала
         try:
             s.connect(("127.0.0.1", 6379))
             s.close()
-            # Если подключился — Redis уже работает, ничего делать не надо
+            # ПОРТ ЗАНЯТ: Redis уже работает
+            print("[Django Redis] Redis-сервер обнаружен и успешно подключен.")
         except socket.error:
-            # Если порт закрыт — запускаем его скрытно в фоне
-            # ЗАМЕНИТЕ ПУТЬ НИЖЕ НА ВАШ РЕАЛЬНЫЙ ПУТЬ К REDIS-SERVER.EXE
-            redis_path = r"C:\My_projects\Redis-x64-3.0.504\redis-server.exe"
+            # ПОРТ СВОБОДЕН: Redis выключен. Проверяем, чей это компьютер
+            # Моя локальная директория
+            my_local_redis_path = r"C:\My_projects\Redis-x64-3.0.504\redis-server.exe"
 
-            if os.path.exists(redis_path):
+            if os.path.exists(my_local_redis_path):
                 print("[Django Autostart] Локальный Redis выключен. Запускаю в фоне...")
-                # Флаг CREATE_NO_WINDOW прячет черное окно навсегда!
                 subprocess.Popen(
-                    [redis_path], creationflags=subprocess.CREATE_NO_WINDOW
+                    [my_local_redis_path], creationflags=subprocess.CREATE_NO_WINDOW
                 )
             else:
-                print(
-                    f"[Django Autostart] Предупреждение: Не найден redis-server.exe по пути {redis_path}"
-                )
-
+                # Это чужой компьютер  — просто вежливо предупреждаем
+                print("\n" + "="*80)
+                print("[DJANGO WARNING] Для работы кэширования страниц требуется запущенный Redis!")
+                print("Пожалуйста, запустите Redis-сервер локально на стандартном порту 6379.")
+                print("="*80 + "\n")
 
 def main():
     """Run administrative tasks."""
