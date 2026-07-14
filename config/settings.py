@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "phonenumber_field",  # Модуль валидации номера телефона
     "django_countries",  # Модуль выбора страны из выпадающего списка
     "django_recaptcha",  # Модуль капчи
+    "debug_toolbar",
     # Локальные приложения проекта
     "catalog",
     "library",
@@ -46,6 +47,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 # Главный файл конфигурации URL
@@ -64,6 +66,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "catalog.context_processors.categories_processor",
             ],
         },
     },
@@ -162,3 +165,24 @@ RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # Секре
 
 # Отключение ошибки при локальной разработке с тестовыми ключами:
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
+
+# Кеширование проекта
+CACHE_ENABLED = True
+
+CACHE_TIMEOUT = 60
+
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379"),
+            "OPTIONS": {
+                "protocol": 2,  # Говорим Django: "Общайся со старым Redis через старый протокол"
+            },
+        }
+    }
+
+# Настройте внутренние IP, чтобы панель Django-debug-tools была видна на локальном компьютере
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

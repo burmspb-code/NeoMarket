@@ -14,8 +14,9 @@ from django.views.generic import (
     TemplateView,
 )
 
-from catalog.models import Product
+from catalog.models import Product, Category
 from .forms import ProductForm, ProductImageFormSet
+from catalog.services import get_products_cache, get_products_by_category_cache
 
 
 # Логика для главной страницы с пагинацией
@@ -39,16 +40,19 @@ class HomeListView(ListView):
 
 # Логика для страницы каталога
 class CatalogListView(ListView):
+    """Представление для отображения каталога товаров.
+
+    Использует встроенный класс `ListView` для вывода списка продуктов.
+    Вся логика выборки, фильтрации и кэширования данных делегирована
+    сервисному слою приложения.
+    """
+
     model = Product
     context_object_name = "products"
 
     def get_queryset(self):
-        return (
-            Product.objects.filter(published=True)
-            .select_related("category")
-            .prefetch_related("images")
-            .order_by("id")
-        )
+        """Возвращает оптимизированный и кэшированный список опубликованных товаров."""
+        return get_products_cache()
 
 
 # Логика для страницы описания товара
@@ -256,3 +260,26 @@ class ContactsView(TemplateView):
             "Ваше сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.",
         )
         return redirect(request.path)
+
+
+class CategoryProductsListView(ListView):
+    """Представление для отображения продуктов конкретной категории.
+
+    Делегирует получение отфильтрованного списка товаров сервисному слою
+    с низкоуровневым кэшированием в Redis.
+    """
+
+    model = Product
+    template_name = "catalog/category_products.html"
+    context_object_name = "products"
+
+    def get_queryset(self):
+        """Возвращает кэшированный QuerySet продуктов для текущей категории."""
+        category_id = self.kwargs.get("pk")
+        return get_products_by_category_cache(category_id)
+
+    def get_context_data(self, **kwargs):
+        """Дополняет контекст шаблона объектом текущей категории."""
+        context = super().get_context_data(**kwargs)
+        context["category"] = Category.objects.filter(pk=self.kwargs.get("pk")).first()
+        return context

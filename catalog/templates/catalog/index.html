@@ -19,17 +19,16 @@
                 
                 <!-- Блок для изображения -->
                 <div class="p-3 text-center bg-white rounded-top d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <!-- Проверяем оба варианта связи (и по related_name, и стандартный системный менеджер) -->
-                    {% if product.images.all %}
-                        <img src="{{ product.images.all.0.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
-                    {% elif product.productimage_set.all %}
-                        <img src="{{ product.productimage_set.all.0.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
-                    {% else %}
-                        <div class="text-muted text-center">
-                            <i class="bi bi-image display-6"></i>
-                            <p class="small mb-0">Нет фото</p>
-                        </div>
-                    {% endif %}
+                    {% with product_images=product.images.all %}
+                        {% if product_images %}
+                            <img src="{{ product_images.0.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
+                        {% else %}
+                            <div class="text-muted text-center">
+                                <i class="bi bi-image display-6"></i>
+                                <p class="small mb-0">Нет фото</p>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                 </div>
 
                 <!-- Контент карточки -->
@@ -43,13 +42,6 @@
                         </div>
                         
                     <h5 class="card-title fw-bold text-dark mb-2">{{ product.name }}</h5>
-
-                    <!-- Артикул товара -->
-                        <div class="mb-2">
-                            <small class="text-muted" style="font-size: 0.75rem;">
-                                Артикул: <span class="fw-semibold text-secondary">{{ product.sku|default:"Не указан" }}</span>
-                            </small>
-                        </div>
 
                     <!-- Описание товара, обрезанное до 100 символов -->
                     <p class="card-text text-muted small flex-grow-1">

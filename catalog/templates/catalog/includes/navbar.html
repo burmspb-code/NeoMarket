@@ -10,20 +10,40 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         
-        <!-- Ссылки навигации -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Основные информационные разделы магазина -->
+        <!-- Основные информационные разделы магазина -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'catalog:home' %}">
                         <i class="bi bi-house-door me-1"></i>Главная
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'catalog:catalog_list' %}">
+
+                <!-- Элемент Каталог является выпадающим списком -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="catalogDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-grid me-1"></i>Каталог
                     </a>
+                    <ul class="dropdown-menu shadow" aria-labelledby="catalogDropdown">
+                        <li>
+                            <a class="dropdown-item fw-bold" href="{% url 'catalog:catalog_list' %}">
+                                Все товары
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+
+                        <!-- Динамический вывод категорий из контекстного процессора -->
+                        {% for cat in all_categories %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'catalog:category_products' cat.pk %}">
+                                    {{ cat.name }}
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li><span class="dropdown-item text-muted">Категории не найдены</span></li>
+                        {% endfor %}
+                    </ul>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'blog:list' %}">
                         <i class="bi bi-journal-text me-1"></i>Блог
