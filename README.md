@@ -16,17 +16,23 @@
    poetry install
    ```
 
-3. **Примените миграции и загрузите демонстрационные данные:**
-   Для автоматического создания структуры базы данных, наполнения каталога товарами и старта локального сервера выполните в терминале:
+## 🚀 Быстрый запуск проекта с демо-данными
+
+Для того чтобы сразу увидеть проект с заполненными товарами и корректными изображениями, выполните следующие шаги:
+
+1. **Подготовьте медиа-файлы:**
+   Скопируйте демонстрационные изображения из папки `demo_images/` в локальную директорию `media/photo/` в корне проекта (если папки `media` или `photo` не существуют, создайте их).
+
+2. **Примените миграции и загрузите данные:**
 
    * **Для Linux / macOS / Git Bash:**
-     ```bash
-     poetry run python manage.py migrate && poetry run python manage.py loaddata product_fixture && poetry run python manage.py runserver
-     ```
+       ```bash
+       poetry run python manage.py migrate && poetry run python manage.py loaddata product_fixture && poetry run python manage.py runserver
+       ```
    * **Для Windows (PowerShell):**
-     ```powershell
-     poetry run python manage.py migrate; poetry run python manage.py loaddata product_fixture; poetry run python manage.py runserver
-     ```
+       ```powershell
+       poetry run python manage.py migrate; poetry run python manage.py loaddata product_fixture; poetry run python manage.py runserver
+       ```
 
-   > 💡 **Важно:** Фикстуры восстанавливают только записи в базе данных. Чтобы на сайте отображались сами изображения товаров, убедитесь, что папка `media/` присутствует в корне проекта.
+3. **Готово!** Перейдите по адресу `http://127.0.0` для просмотра сайта.
 
