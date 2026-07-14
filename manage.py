@@ -5,9 +5,24 @@ import os
 import sys
 import socket
 import subprocess
+from django.conf import settings  # Импортируем настройки Django
 
 
 def start_local_redis():
+    """ Автоматически проверяет и запускает локальный Redis-сервер в фоне.
+
+        Логика работы:
+        1. Проверяет флаг `CACHE_ENABLED` в настройках Django. Если он выключен, работа прекращается.
+        2. Гарантирует выполнение только в основном процессе Django (игнорирует Autoreloader).
+        3. Опрашивает порт 6379. Если порт занят — использует уже активный Redis.
+        4. Если порт свободен и это мой ПК (путь к .exe существует) — запускает скрытый фоновый процесс.
+        5. Если порт свободен, но пути к .exe нет (чужой ПК) — выводит предупреждение в консоль.
+        """
+
+    # Проверяем переменную кеширования напрямую через объект settings
+    if not settings.CACHE_ENABLED:
+        return  # Если кэш выключен — останавливаем запуск
+
     # Запускаем проверку только при старте сервера или шелла
     # RUN_MAIN гарантирует, что код выполнится только один раз в основном процессе
     if os.environ.get('RUN_MAIN') == 'true' and len(sys.argv) > 1 and sys.argv[1] in ["runserver", "shell"]:
@@ -37,7 +52,7 @@ def start_local_redis():
 
 def main():
     """Run administrative tasks."""
-    start_local_redis()  # Запуск Redis
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         from django.core.management import execute_from_command_line
@@ -47,6 +62,9 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    start_local_redis()  # Запуск Redis
+
     execute_from_command_line(sys.argv)
 
 

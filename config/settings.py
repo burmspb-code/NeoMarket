@@ -168,15 +168,19 @@ RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # Секре
 # Отключение ошибки при локальной разработке с тестовыми ключами:
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379"),
-        "OPTIONS": {
-            "protocol": 2,  # Говорим Django: "Общайся со старым Redis через старый протокол"
-        },
+# Кеширование проекта
+CACHE_ENABLED = True
+
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379"),
+            "OPTIONS": {
+                "protocol": 2,  # Говорим Django: "Общайся со старым Redis через старый протокол"
+            },
+        }
     }
-}
 
 # Настройте внутренние IP, чтобы панель Django-debug-tools была видна на локальном компьютере
 INTERNAL_IPS = [
