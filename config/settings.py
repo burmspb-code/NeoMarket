@@ -171,6 +171,8 @@ SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
 # Кеширование проекта
 CACHE_ENABLED = True
 
+CACHE_TIMEOUT = 60
+
 if CACHE_ENABLED:
     CACHES = {
         "default": {

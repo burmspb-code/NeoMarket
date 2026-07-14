@@ -16,6 +16,7 @@ from django.views.generic import (
 
 from catalog.models import Product
 from .forms import ProductForm, ProductImageFormSet
+from catalog.services import get_products_cache
 
 
 # Логика для главной страницы с пагинацией
@@ -39,16 +40,18 @@ class HomeListView(ListView):
 
 # Логика для страницы каталога
 class CatalogListView(ListView):
+    """Представление для отображения каталога товаров.
+
+        Использует встроенный класс `ListView` для вывода списка продуктов.
+        Вся логика выборки, фильтрации и кэширования данных делегирована
+        сервисному слою приложения.
+    """
     model = Product
     context_object_name = "products"
 
     def get_queryset(self):
-        return (
-            Product.objects.filter(published=True)
-            .select_related("category")
-            .prefetch_related("images")
-            .order_by("id")
-        )
+        """Возвращает оптимизированный и кэшированный список опубликованных товаров."""
+        return get_products_cache()
 
 
 # Логика для страницы описания товара
