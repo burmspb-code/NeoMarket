@@ -20,32 +20,32 @@ urlpatterns = [
     # Главная страница (Каталог)
     path("", HomeListView.as_view(), name="home"),
     # Страница контактов
-    path("contacts/", ContactsView.as_view(), name="contacts"),
+    path(
+        "contacts/", cache_page(60 * 60 * 24)(ContactsView.as_view()), name="contacts"
+    ),
     # Страница с каталогом товаров
     path("catalog/", CatalogListView.as_view(), name="catalog_list"),
-    # Страница с детальной информацией о товаре
-    path(
-        "product/<int:pk>/",
-        cache_page(60)(ProductDetailView.as_view()),
-        name="product_detail",
-    ),
     # Страница с добавлением нового товара
     path("product/add/", ProductCreateView.as_view(), name="product_create"),
+    # Страница с детальной информацией о товаре
+    path("product/<slug:slug>/", ProductDetailView.as_view(), name="product_detail"),
     # Страница для редактирования товара
-    path("product/<int:pk>/edit/", ProductUpdateView.as_view(), name="product_edit"),
+    path("product/<slug:slug>/edit/", ProductUpdateView.as_view(), name="product_edit"),
     # Станица для удаления товара
     path(
-        "product/<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"
+        "product/<slug:slug>/delete/",
+        ProductDeleteView.as_view(),
+        name="product_delete",
     ),
     # Станица для удаления фото товара
     path(
-        "product/<int:pk>/delete-image/",
+        "product/<slug:slug>/delete-image/",
         ProductDeleteImageView.as_view(),
         name="product_delete_image",
     ),
     # Страница товаров выбранной категории
     path(
-        "category/<int:pk>/",
+        "category/<slug:slug>/",
         CategoryProductsListView.as_view(),
         name="category_products",
     ),

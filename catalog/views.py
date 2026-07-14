@@ -1,6 +1,8 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.cache import cache
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect  # noqa: F401
 from django.urls import reverse_lazy
@@ -15,27 +17,59 @@ from django.views.generic import (
 )
 
 from catalog.models import Product, Category
-from .forms import ProductForm, ProductImageFormSet
 from catalog.services import get_products_cache, get_products_by_category_cache
+from .forms import ProductForm, ProductImageFormSet
 
 
 # Логика для главной страницы с пагинацией
 class HomeListView(ListView):
+    """Представление для главной страницы сайта.
+    Выводит опубликованные товары из кэша Redis с ручной пагинацией списка.
+    """
+
     model = Product
     template_name = "catalog/index.html"
     context_object_name = "products"
-    paginate_by = 3
 
-    def get_queryset(self):
-        # Фильтруем только опубликованные товары
-        # Оптимизируем запросы: категории (SQL JOIN) и картинки (отдельный быстрый запрос)
-        # Сортируем (для пагинации обязательна стабильная сортировка, "id" отлично подходит)
-        return (
-            Product.objects.filter(published=True)
-            .select_related("category")
-            .prefetch_related("images")
-            .order_by("id")
+    # Отключаем встроенную пагинацию, так как мы сделаем её вручную для списка
+    paginate_by = None
+    queryset = Product.objects.none()
+
+    def get_context_data(self, **kwargs):
+        """Передаем закешированный список товаров из сервисного слоя в контекст."""
+        context = super().get_context_data(**kwargs)
+
+        # Получаем ПОЛНЫЙ список товаров из Redis (все 4 товара)
+        products_list = get_products_cache()
+
+        # Получаем номер текущей страницы из URL-адреса (?page=2)
+        page_number = self.request.GET.get("page", 1)
+
+        # Вручную создаем пагинатор Django по 3 товара на страницу
+        # Для изменения лимита просто поменяйте цифру 3 ниже
+        paginator = Paginator(products_list, 3)
+
+        try:
+            # Пытаемся получить товары для текущей страницы
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            # Если page не число (например, ?page=abc), отдаем первую страницу
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # Если страница пустая (например, ?page=999), отдаем последнюю страницу
+            page_obj = paginator.page(paginator.num_pages)
+
+        # Наполняем контекст переменными, которые ЖЕСТКО требуются HTML-шаблону
+        context.update(
+            {
+                "paginator": paginator,
+                "page_obj": page_obj,
+                "is_paginated": paginator.num_pages
+                > 1,  # Пагинация включена, если страниц больше 1
+                "products": page_obj.object_list,  # Сюда уйдут ровно 3 товара для текущей страницы
+            }
         )
+        return context
 
 
 # Логика для страницы каталога
@@ -50,9 +84,20 @@ class CatalogListView(ListView):
     model = Product
     context_object_name = "products"
 
-    def get_queryset(self):
-        """Возвращает оптимизированный и кэшированный список опубликованных товаров."""
-        return get_products_cache()
+    # Обязательно указываем путь к вашему HTML-шаблону
+    template_name = "catalog/catalog_list.html"
+
+    # Передаем пустой QuerySet, чтобы успокоить внутренние проверки Django
+    queryset = Product.objects.none()
+
+    def get_context_data(self, **kwargs):
+        """Передаем готовый список из Redis прямо в контекст шаблона."""
+        context = super().get_context_data(**kwargs)
+
+        # Заменяем пустой список на наш быстрый кэш из сервисного слоя
+        context["products"] = get_products_cache()
+
+        return context
 
 
 # Логика для страницы описания товара
@@ -266,20 +311,35 @@ class CategoryProductsListView(ListView):
     """Представление для отображения продуктов конкретной категории.
 
     Делегирует получение отфильтрованного списка товаров сервисному слою
-    с низкоуровневым кэшированием в Redis.
+    с низкоуровневым кэшированием в Redis на основе текстовых слагов.
     """
 
     model = Product
     template_name = "catalog/category_products.html"
     context_object_name = "products"
 
-    def get_queryset(self):
-        """Возвращает кэшированный QuerySet продуктов для текущей категории."""
-        category_id = self.kwargs.get("pk")
-        return get_products_by_category_cache(category_id)
+    # Заглушаем требование к QuerySet, так как данные придут в виде списка из Redis
+    queryset = Product.objects.none()
 
     def get_context_data(self, **kwargs):
-        """Дополняет контекст шаблона объектом текущей категории."""
+        """Дополняет контекст шаблона закешированными товарами и объектом категории."""
         context = super().get_context_data(**kwargs)
-        context["category"] = Category.objects.filter(pk=self.kwargs.get("pk")).first()
+
+        # Извлекаем из URL текстовый 'slug' вместо числового 'pk'
+        category_slug = self.kwargs.get("slug")
+
+        # Передаем список товаров из сервисного слоя напрямую в контекст
+        context["products"] = get_products_by_category_cache(category_slug)
+
+        # ОПТИМИЗАЦИЯ: Получаем сам объект категории для вывода заголовка и описания
+        # Чтобы не дергать БД при каждом клике, объект категории тоже можно закешировать
+        category_cache_key = f"category_obj_{category_slug}"
+        category = cache.get(category_cache_key)
+
+        if category is None:
+            category = Category.objects.filter(slug=category_slug).first()
+            if category:
+                cache.set(category_cache_key, category, timeout=3600)  # Кэш на 1 час
+
+        context["category"] = category
         return context

@@ -1,5 +1,6 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
+{% load cache %} {# ПОДКЛЮЧАЕМ ТЕГ КЭШИРОВАНИЯ #}
 
 {% block content %}
 <div class="container my-5">
@@ -11,47 +12,49 @@
 
     <h2 class="text-center mb-4">Популярные товары</h2>
 
-    <!-- Сетка товаров -->
+    {# КЭШИРУЕМ СЕТКУ ТОВАРОВ НА ГЛАВНОЙ НА 5 МИНУТ (Учитываем номер страницы пагинации) #}
+    {% cache 300 home_products_grid request.GET.page|default:1 products|length %}
+
     <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for product in products %}
         <div class="col">
             <div class="card h-100 shadow-sm border-0 position-relative">
-                
+
                 <!-- Блок для изображения -->
                 <div class="p-3 text-center bg-white rounded-top d-flex align-items-center justify-content-center" style="height: 200px;">
-                    {% with product_images=product.images.all %}
-                        {% if product_images %}
-                            <img src="{{ product_images.0.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
-                        {% else %}
-                            <div class="text-muted text-center">
-                                <i class="bi bi-image display-6"></i>
-                                <p class="small mb-0">Нет фото</p>
-                            </div>
-                        {% endif %}
-                    {% endwith %}
+                    {# ИСПРАВЛЕНИЕ: Используем фильтр .first вместо индекса .0 #}
+                    {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" class="img-fluid" alt="{{ product.name }}" style="max-height: 100%; object-fit: contain;">
+                    {% else %}
+                        <div class="text-muted text-center">
+                            <i class="bi bi-image display-6"></i>
+                            <p class="small mb-0">Нет фото</p>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <!-- Контент карточки -->
                 <div class="card-body d-flex flex-column">
 
                     <!-- Артикул товара -->
-                        <div class="mb-2">
-                            <small class="text-muted" style="font-size: 0.75rem;">
-                                Артикул: <span class="fw-semibold text-secondary">{{ product.sku|default:"Не указан" }}</span>
-                            </small>
-                        </div>
-                        
+                    <div class="mb-2">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            Артикул: <span class="fw-semibold text-secondary">{{ product.sku|default:"Не указан" }}</span>
+                        </small>
+                    </div>
+
                     <h5 class="card-title fw-bold text-dark mb-2">{{ product.name }}</h5>
 
                     <!-- Описание товара, обрезанное до 100 символов -->
                     <p class="card-text text-muted small flex-grow-1">
                         {{ product.description|truncatechars:100 }}
                     </p>
-                    
+
                     <!-- Цена и кнопка -->
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
                         <span class="fw-bold fs-5 text-primary">{{ product.price }} ₽</span>
-                        <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-outline-primary btn-sm">
+                        {# ИСПРАВЛЕНИЕ: Заменили product.pk на аргумент slug=product.slug #}
+                        <a href="{% url 'catalog:product_detail' slug=product.slug %}" class="btn btn-outline-primary btn-sm">
                             Подробнее
                         </a>
                     </div>
@@ -64,9 +67,11 @@
             <p class="text-muted">Товары временно отсутствуют.</p>
         </div>
         {% endfor %}
-    </div> <!-- Конец сетки товаров (лишний лишний тег выше удален) -->
+    </div>
 
-    <!-- Блок пагинации (переключения страниц, адаптированный под CBV) -->
+    {% endcache %} {# 3. ЗАКРЫВАЕМ БЛОК КЭША #}
+
+    <!-- Блок пагинации (переключения страниц) -->
     {% if is_paginated %}
     <nav aria-label="Навигация по страницам" class="mt-5">
         <ul class="pagination justify-content-center">
