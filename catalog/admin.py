@@ -4,7 +4,14 @@ from catalog.models import Category, Product, ProductImage
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name")
+    # Поля, которые будут отображаться в таблице
+    list_display = ("id", "name", "slug")
+
+    # Поля, по которым работает поиск
+    search_fields = ("name",)
+
+    # Поля, на которые можно нажать для перехода к редактированию
+    list_display_links = ("name",)
 
 
 @admin.register(Product)
@@ -14,7 +21,7 @@ class ProductAdmin(admin.ModelAdmin):
         "id",
         "name",
         "sku",
-        "description",
+        "slug",
         "category",
         "price",
         "created_at",
@@ -27,7 +34,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ("category",)
 
     # Поля, по которым работает поиск
-    search_fields = ("name", "description")
+    search_fields = ("name",)
 
     # Поля, на которые можно нажать для перехода к редактированию
     list_display_links = ["name", "sku"]

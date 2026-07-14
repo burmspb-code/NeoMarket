@@ -15,7 +15,7 @@ def get_products_cache():
 
     def get_optimized_products():
         """Получение списка опубликованных продуктов."""
-        return (
+        return list(
             Product.objects.filter(published=True)
             .select_related("category")
             .prefetch_related("images")
@@ -40,13 +40,13 @@ def get_products_cache():
     return products
 
 
-def get_products_by_category_cache(category_id):
+def get_products_by_category_cache(category_slug):
     """Кеширование товаров выбранной категории."""
 
     def get_optimized_category_products():
         """Получение продуктов из категории."""
-        return (
-            Product.objects.filter(category_id=category_id, published=True)
+        return list(
+            Product.objects.filter(category__slug=category_slug, published=True)
             .select_related("category")
             .prefetch_related("images")
             .order_by("id")
@@ -56,7 +56,7 @@ def get_products_by_category_cache(category_id):
         return get_optimized_category_products()
 
     # Формируем уникальный ключ кэша для КАЖДОЙ категории отдельно!
-    key_prod = f"products_category_{category_id}"
+    key_prod = f"products_category_{category_slug}"
     products_cache = cache.get(key_prod)
 
     if products_cache is not None:

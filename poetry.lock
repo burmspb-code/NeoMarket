@@ -705,6 +705,18 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "pytils"
+version = "0.4.4"
+description = "Russian-specific string utils"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pytils-0.4.4-py3-none-any.whl", hash = "sha256:e54c16465a5fdb65d414e2da8045e6cc6de79889acda6143dcef2e1e86a1a840"},
+    {file = "pytils-0.4.4.tar.gz", hash = "sha256:9992a96caad57daa211584df1da4fd825f11e836d3ed93011785f1d02ab6f0ca"},
+]
+
+[[package]]
 name = "redis"
 version = "8.0.1"
 description = "Python client for Redis database and key-value store"
@@ -844,4 +856,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "ff78b1a7a040500acac15762a2d17c48c83ba1a0851b978e364fca7f760759f7"
+content-hash = "b476509275dcf76e103735426d2d96e578a2b9282e1265e24ec5302471d170e8"
