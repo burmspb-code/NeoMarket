@@ -77,11 +77,11 @@ def remove_content_managers_group(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        # Первая миграция от стандартного приложения auth, чтобы не возникало ошибок
+        # 1. Первая миграция от стандартного приложения auth (оставляем без изменений)
         ("auth", "__first__"),
-        # '0003_alter_product_options' имя ПРЕДЫДУЩЕЙ миграции в приложении catalog,
-        # чтобы модели этого приложения уже гарантированно существовали в базе данных.
-        ("catalog", "0003_alter_product_options"),
+
+        # 2. ИСПРАВЛЕНИЕ: Связываем цепочку с файлом 0002 из вашей папкиmigrations
+        ("catalog", "0002_alter_category_slug"),
     ]
 
     operations = [
