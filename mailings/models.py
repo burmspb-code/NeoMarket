@@ -176,3 +176,49 @@ class MailingManagement(models.Model):
                 raise ValidationError(
                     {"end_time": "Время окончания не может быть меньше времени начала рассылки."}
                 )
+
+
+class MailingLog(models.Model):
+    """Модель логов для фиксации результатов отправки писем согласно ТЗ.
+
+    Поля:
+        mailing (ForeignKey): Связь с конкретной рассылкой.
+        attempt_time (DateTimeField): Дата и время попытки отправки.
+        status (CharField): Статус попытки (успешно/не успешно).
+        server_response (TextField): Ответ почтового сервера или текст ошибки.
+    """
+
+    LOG_STATUS_CHOICES: list[tuple[str, str]] = [
+        ('success', 'Успешно'),
+        ('failed', 'Не успешно'),  # В точности как просит ТЗ (Не успешно)
+    ]
+
+    mailing = models.ForeignKey(
+        MailingManagement,
+        on_delete=models.CASCADE,
+        related_name="logs",
+        verbose_name="Рассылка"
+    )
+    attempt_time = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата и время попытки"
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=LOG_STATUS_CHOICES,
+        verbose_name="Статус"
+    )
+    server_response = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Ответ почтового сервера",
+        help_text="Здесь лог запишет причину ошибки, если отправка сорвется"
+    )
+
+    class Meta:
+        verbose_name = "Лог отправки"
+        verbose_name_plural = "Логи отправки"
+        ordering = ['-attempt_time']
+
+    def __str__(self):
+        return f"Попытка #{self.id} для рассылки {self.mailing.id} [{self.get_status_display()}]"

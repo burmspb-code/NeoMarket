@@ -15,6 +15,8 @@ urlpatterns = [
     path("library/", include("library.urls", namespace="library")),
     # Страница регистрации пользователей
     path("users/", include("users.urls", namespace="users")),
+    # Подключение приложения рассылок
+    path("mailings/", include("mailings.urls", namespace="mailings")),
 ]
 
 # Настройка для раздачи медиафайлов в режиме разработки
