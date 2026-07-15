@@ -26,16 +26,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
     # Сторонние библиотеки
     "phonenumber_field",  # Модуль валидации номера телефона
     "django_countries",  # Модуль выбора страны из выпадающего списка
     "django_recaptcha",  # Модуль капчи
     "debug_toolbar",
     # Локальные приложения проекта
+
     "catalog",
     "library",
     "blog",
     "users",
+    "mailings",
 ]
 
 # Промежуточное программное обеспечение (Middleware)
