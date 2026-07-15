@@ -39,7 +39,7 @@ class HomeListView(ListView):
         """Передаем закешированный список товаров из сервисного слоя в контекст."""
         context = super().get_context_data(**kwargs)
 
-        # Получаем ПОЛНЫЙ список товаров из Redis (все 4 товара)
+        # Получаем ПОЛНЫЙ список товаров из Redis
         products_list = get_products_cache()
 
         # Получаем номер текущей страницы из URL-адреса (?page=2)
@@ -102,6 +102,7 @@ class CatalogListView(ListView):
 
 # Логика для страницы описания товара
 class ProductDetailView(DetailView):
+    """Представления для отображения детального описания товара."""
     model = Product
     context_object_name = "product"
 
@@ -126,6 +127,7 @@ class ProductDetailView(DetailView):
 
 # Логика удаления товара
 class ProductDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    """Представление для удаления товара."""
     model = Product
     context_object_name = "product"
     success_url = reverse_lazy("catalog:catalog_list")
@@ -161,6 +163,7 @@ class ProductDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 
 # Логика для добавления нового товара
 class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    """Представление для создания товара."""
     model = Product
     context_object_name = "product"
     form_class = ProductForm
@@ -213,6 +216,7 @@ class ProductCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 # Логика для редактирования товара
 class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    """Представление для редавтирования товара."""
     model = Product
     form_class = ProductForm
     context_object_name = "product"
@@ -271,6 +275,7 @@ class ProductUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
 
 class ProductDeleteImageView(LoginRequiredMixin, View):
+    """Представления для удаления изображения товара."""
     def post(self, request, image_pk, *args, **kwargs):
         # Ищем конкретную картинку, попутно проверяя, существует ли она
         image_instance = get_object_or_404(ProductImage, pk=image_pk)
@@ -293,6 +298,7 @@ class ProductDeleteImageView(LoginRequiredMixin, View):
 
 # Логика для контактов с формой обратной связи
 class ContactsView(TemplateView):
+    """Представления для отображения формы обратной связи."""
     template_name = "catalog/contacts.html"
 
     def post(self, request, *args, **kwargs):

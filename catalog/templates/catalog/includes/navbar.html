@@ -62,6 +62,15 @@
                         <i class="bi bi-envelope me-1"></i>Контакты
                     </a>
                 </li>
+                {# Ссылка на админку должна быть видна только персоналу (менеджерам и суперпользователям) #}
+                {% if user.is_authenticated and user.is_staff %}
+                <li class="nav-item">
+                    <!-- ИСПРАВЛЕНО: Указан правильный путь к админке Django -->
+                    <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">
+                        <i class="bi bi-sliders me-1"></i>Админ панель
+                    </a>
+                </li>
+                {% endif %}
             </ul>
 
             <!-- Пользовательский блок (Корзина, Избранное, Профиль) -->
