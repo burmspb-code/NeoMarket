@@ -91,7 +91,9 @@ class MailingManagement(models.Model):
     Поля:
         start_time (DateTimeField): Дата и время начала отправки.
         end_time (DateTimeField): Дата и время окончания отправки.
-
+        status (CharField): Статус рассылки.
+        message (ForeignKey): Внешний ключ модели MailingMessage (один ко многим).
+        recipients (ManyToManyField): Внешний ключ модели MailingClient (многие ко многим).
     Атрибуты:
         STATUS_CHOICES: (list[tuple[str, str]]): Статус рассылки.
     """
