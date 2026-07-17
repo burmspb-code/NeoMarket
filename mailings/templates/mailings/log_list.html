@@ -1,0 +1,94 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Журнал отправлений | NeoMarket{% endblock %}
+
+{% block content %}
+<!-- Хлебные крошки -->
+<div class="container my-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 px-1" style="font-size: 0.9rem;">
+            <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}" class="text-decoration-none text-secondary">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'mailings:dashboard' %}" class="text-decoration-none text-secondary">Сервис рассылок</a></li>
+            <li class="breadcrumb-item active fw-medium text-dark" aria-current="page">Журнал логов</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container pb-5">
+    <!-- Заголовок страницы -->
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark mb-1">Журнал отправлений писем</h2>
+        <p class="text-muted small mb-0">Полный список попыток отправки сообщений клиентам NeoMarket</p>
+    </div>
+
+    <!-- Таблица логов -->
+    <div class="card table-container shadow-sm p-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-secondary small text-uppercase" style="font-weight: 700;">
+                    <tr>
+                        <th scope="col" class="ps-3">Время попытки</th>
+                        <th scope="col">Рассылка (Тема)</th>
+                        <th scope="col">Статус</th>
+                        <th scope="col">Ответ сервера / Ошибка</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    {% for log in logs %}
+                    <tr>
+                        <td class="ps-3 text-dark fw-medium">{{ log.attempt_time|date:"d.m.Y H:i:s" }}</td>
+                        <td class="text-secondary text-truncate" style="max-width: 250px;">{{ log.mailing.message.message_subject }}</td>
+                        <td>
+                            {% if log.status == 'success' %}
+                                <span class="badge bg-success text-white px-2.5 py-1.5 rounded">
+                                    <i class="bi bi-check-circle me-1"></i>{{ log.get_status_display }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger text-white px-2.5 py-1.5 rounded">
+                                    <i class="bi bi-x-circle me-1"></i>{{ log.get_status_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">
+                            {% if log.server_response %}
+                                <code class="text-wrap text-break {% if log.status == 'failed' %}text-danger{% else %}text-muted{% endif %}" style="font-size: 0.85rem;">
+                                    {{ log.server_response }}
+                                </code>
+                            {% else %}
+                                <span class="text-black-50">Ответ отсутствует</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-clipboard-x fs-2 d-block mb-2 text-black-50"></i>
+                            Журнал пуст.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Постраничная навигация (Пагинация) -->
+        {% if is_paginated %}
+        <nav aria-label="Навигация по страницам логов" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link text-dark" href="?page=1">&laquo; Первая</a></li>
+                    <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.previous_page_number }}">Назад</a></li>
+                {% endif %}
+
+                <li class="page-item active"><span class="page-link bg-warning border-warning text-dark fw-bold">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.next_page_number }}">Вперед</a></li>
+                    <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

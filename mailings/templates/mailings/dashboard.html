@@ -88,7 +88,12 @@
     <!-- ТАБЛИЦА ВСЕХ РАССЫЛОК -->
     <div class="card table-container shadow-sm p-4">
         <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-list-task me-2 text-secondary"></i>История и запланированные кампании</h5>
-        
+
+        <!-- Ссылка на отдельную страницу журналов -->
+        <a href="{% url 'mailings:log_list' %}" class="btn btn-outline-secondary btn-sm fw-semibold">
+            <i class="bi bi-journal-text me-1"></i> Открыть журнал логов
+        </a>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light text-secondary small text-uppercase" style="font-weight: 700;">
@@ -129,4 +134,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

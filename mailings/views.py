@@ -117,10 +117,11 @@ class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView
     raise_exception = True
 
     def get_context_data(self, **kwargs):
-        """Расчет показателей для карточек на фронтенде."""
+        """Расчет показателей для карточек и выгрузка логов на фронтенд."""
         context = super().get_context_data(**kwargs)
         now = timezone.now()
 
+        # Всего рассылок, активных рассылок, всего получателей
         context['total_mailings'] = MailingManagement.objects.count()
         context['active_mailings'] = MailingManagement.objects.filter(
             status='launched',
@@ -128,6 +129,10 @@ class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView
             end_time__gte=now
         ).count()
         context['total_clients'] = MailingClient.objects.count()
+
+        # Получаем 20 последних логов отправки (select_related оптимизирует запросы к БД)
+        from mailings.models import MailingLog  # Убедитесь, что модель импортирована вверху файла
+        context['recent_logs'] = MailingLog.objects.select_related('mailing__message').all()[:20]
 
         return context
 
@@ -175,3 +180,15 @@ class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         """
         form.instance.status = 'created'
         return super().form_valid(form)
+
+
+class MailingLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """Страница для просмотра полной истории логов отправки писем."""
+    model = MailingLog
+    template_name = 'mailings/log_list.html'
+    context_object_name = 'logs'
+    paginate_by = 20  # Показываем по 20 логов на страницу
+
+    # Требуем то же право, что и для просмотра дашборда
+    permission_required = 'mailings.view_mailingmanagement'
+    raise_exception = True
