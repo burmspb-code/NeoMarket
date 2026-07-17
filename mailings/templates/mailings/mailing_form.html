@@ -1,0 +1,105 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Новая рассылка | NeoMarket{% endblock %}
+
+{% block content %}
+<!-- Хлебные крошки -->
+<div class="container my-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 px-1" style="font-size: 0.9rem;">
+            <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}" class="text-decoration-none text-secondary">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'mailings:dashboard' %}" class="text-decoration-none text-secondary">Сервис рассылок</a></li>
+            <li class="breadcrumb-item active fw-medium text-dark" aria-current="page">Новая рассылка</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Контейнер формы -->
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 12px; background: #ffffff;">
+                
+                <div class="d-flex align-items-center mb-4">
+                    <div class="p-2 bg-warning-subtle rounded-3 text-warning me-3">
+                        <i class="bi bi-envelope-plus-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-0">Параметры новой рассылки</h4>
+                        <p class="text-muted small mb-0">Заполните расписание, выберите шаблон сообщения и список получателей</p>
+                    </div>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Вывод неструктурированных ошибок формы, если они есть -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger shadow-sm border-0 mb-4" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Поле: Время начала -->
+                    <div class="mb-3">
+                        <label for="{{ form.start_time.id_for_label }}" class="form-label fw-semibold small text-dark">
+                            {{ form.start_time.label }}
+                        </label>
+                        {{ form.start_time }}
+                        {% if form.start_time.errors %}
+                            <div class="text-danger small mt-1">{{ form.start_time.errors|first }}</div>
+                        {% endif %}
+                        <div class="form-text text-muted" style="font-size: 0.8rem;">{{ form.start_time.help_text }}</div>
+                    </div>
+
+                    <!-- Поле: Время окончания -->
+                    <div class="mb-3">
+                        <label for="{{ form.end_time.id_for_label }}" class="form-label fw-semibold small text-dark">
+                            {{ form.end_time.label }}
+                        </label>
+                        {{ form.end_time }}
+                        {% if form.end_time.errors %}
+                            <div class="text-danger small mt-1">{{ form.end_time.errors|first }}</div>
+                        {% endif %}
+                        <div class="form-text text-muted" style="font-size: 0.8rem;">{{ form.end_time.help_text }}</div>
+                    </div>
+
+                    <!-- Поле: Сообщение -->
+                    <div class="mb-3">
+                        <label for="{{ form.message.id_for_label }}" class="form-label fw-semibold small text-dark">
+                            {{ form.message.label }}
+                        </label>
+                        {{ form.message }}
+                        {% if form.message.errors %}
+                            <div class="text-danger small mt-1">{{ form.message.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле: Получатели -->
+                    <div class="mb-4">
+                        <label for="{{ form.recipients.id_for_label }}" class="form-label fw-semibold small text-dark">
+                            {{ form.recipients.label }}
+                        </label>
+                        {{ form.recipients }}
+                        {% if form.recipients.errors %}
+                            <div class="text-danger small mt-1">{{ form.recipients.errors|first }}</div>
+                        {% endif %}
+                        <div class="form-text text-muted" style="font-size: 0.8rem;">Зажмите <kbd>Ctrl</kbd> (или <kbd>Cmd</kbd> на Mac), чтобы выбрать нескольких клиентов.</div>
+                    </div>
+
+                    <!-- Кнопки управления -->
+                    <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                        <a href="{% url 'mailings:dashboard' %}" class="btn btn-light fw-medium px-4">Отмена</a>
+                        <button type="submit" class="btn btn-warning fw-semibold shadow-sm px-4">
+                            <i class="bi bi-check-lg me-1"></i> Поставить в очередь
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
