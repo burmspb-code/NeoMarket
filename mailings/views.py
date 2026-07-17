@@ -178,6 +178,20 @@ class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         Returns:
             HttpResponse: Перенаправление на страницу success_url.
         """
+        # Извлекаем данные виртуальных полей
+        subject = form.cleaned_data.get('message_subject')
+        body = form.cleaned_data.get('message_body')
+
+        # Если поля заполнены, создаем новый объект MailingMessage в базе
+        if subject and body:
+            new_message = MailingMessage.objects.create(
+                message_subject=subject,
+                message_body=body
+            )
+            # Привязываем новое сообщение к рассылке
+            form.instance.message = new_message
+
+        # Принудительно выставляем статус 'created' для рассылки
         form.instance.status = 'created'
         return super().form_valid(form)
 
