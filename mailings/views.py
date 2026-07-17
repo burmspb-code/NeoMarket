@@ -19,7 +19,7 @@ class ManualStartMailingView(View):
         mailing = get_object_or_404(MailingManagement, pk=mailing_id)
         now = timezone.now()
 
-        # --- Пункт 4 ТЗ: Проверка временных рамок ---
+        # --- Проверка временных рамок ---
         if not (mailing.start_time <= now <= mailing.end_time):
             messages.error(
                 request,
@@ -41,7 +41,7 @@ class ManualStartMailingView(View):
         success_count = 0
         failed_count = 0
 
-        # --- Пункт 4 и 5 ТЗ: Отправка писем и логирование ---
+        # --- Отправка писем и логирование ---
         for client in recipients:
             try:
                 send_mail(

@@ -139,12 +139,12 @@ class MailingManagement(models.Model):
 
     class Meta:
         """Класс метаданных."""
-        verbose_name = "Рассылка"
+        verbose_name = "рассылку"
         verbose_name_plural = "Рассылки"
         ordering = ['start_time', 'end_time']
 
     def __str__(self):
-        return f"{self.status}"
+        return f"{self.message}"
 
     def update_status(self):
         """Динамическое обновление статуса рассылки."""
@@ -153,7 +153,7 @@ class MailingManagement(models.Model):
         mailing_start = self.start_time
         mailing_end = self.end_time
 
-        # Получение текущей даты и времени, bспользуем часовой пояс проекта
+        # Получение текущей даты и времени, используем часовой пояс проекта
         now = timezone.now()
 
         if mailing_start <= now <= mailing_end:
@@ -216,6 +216,7 @@ class MailingLog(models.Model):
     )
 
     class Meta:
+        """Класс метаданных."""
         verbose_name = "Лог отправки"
         verbose_name_plural = "Логи отправки"
         ordering = ['-attempt_time']

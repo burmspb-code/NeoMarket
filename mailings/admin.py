@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from mailings.models import MailingClient, MailingMessage, MailingManagement
+from mailings.models import MailingClient, MailingMessage, MailingManagement, MailingLog
 
 
 @admin.register(MailingClient)
@@ -37,7 +37,7 @@ class MailingMessageAdmin(admin.ModelAdmin):
 class MailingManagementAdmin(admin.ModelAdmin):
     """Панель администратора для настройки параметров и расписания рассылок."""
     # Поля, которые будут отображаться в таблице
-    list_display = ("start_time", "end_time", "status", "message")
+    list_display = ("message", "status", "start_time", "end_time")
 
     # Поля, по которым работает поиск
     search_fields = ("start_time", "end_time", "status")
@@ -58,3 +58,23 @@ class MailingManagementAdmin(admin.ModelAdmin):
                 url
             )
         return "Сначала сохраните рассылку"
+
+
+@admin.register(MailingLog)
+class MailingLoggingAdmin(admin.ModelAdmin):
+    """Панель администратора для просмотра логов рассылок."""
+
+    # Поля в удобном порядке: сначала время и статус, затем ответ сервера
+    list_display = ("attempt_time", "status", "server_response")
+
+    # Переносим кликабельность на время попытки, чтобы заходить в детали лога
+    list_display_links = ("attempt_time",)
+
+    # Ищем только по тексту ответа сервера и статусу.
+    search_fields = ("status", "server_response")
+
+    # Добавляем боковые фильтры — для логов это самый удобный инструмент (по дням и статусам)
+    list_filter = ("status", "attempt_time")
+
+    # Запрещаем редактирование логов прямо из админки (логи должны быть неизменяемыми)
+    readonly_fields = ("attempt_time", "status", "server_response")
