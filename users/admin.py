@@ -73,6 +73,15 @@ class CustomUserAdmin(UserAdmin):
             }
         )
     )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password"),  # Заменили 'username' на 'email'
+            },
+        ),
+    )
 
     def get_queryset(self, request):
         """Оптимизация запросов к БД: подгружаем группы разом, избегая проблемы N+1."""
@@ -96,13 +105,15 @@ class CustomUserAdmin(UserAdmin):
     @admin.display(description="Статус Email", ordering='email_status')
     def email_status_badge(self, obj):
         """Цветной компактный бейдж для статуса валидности почты."""
+        # Насыщенные контрастные цвета, которые отлично читаются на темном фоне
         colors = {
-            'verified': 'background-color: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;',
-            'unverified': 'background-color: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;',
-            'bounced': 'background-color: #f8d7da; color: #721c24; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; font-weight: bold;',
+            'verified': 'background-color: rgba(40, 167, 69, 0.2); color: #2ecc71; border: 1px solid rgba(40, 167, 69, 0.4); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-block;',
+            'unverified': 'background-color: rgba(255, 193, 7, 0.15); color: #f1c40f; border: 1px solid rgba(255, 193, 7, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-block; white-space: nowrap;',
+            'bounced': 'background-color: rgba(220, 53, 69, 0.2); color: #e74c3c; border: 1px solid rgba(220, 53, 69, 0.4); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; display: inline-block;',
         }
-        style = colors.get(obj.email_status, '')
+
+        style = colors.get(obj.email_status, 'color: #fff;')
         text = obj.get_email_status_display()
 
-        # Передаем динамический стиль и текст в аргументы через запятую
+        # format_html автоматически защищает от XSS и корректно рендерит тег
         return format_html('<span style="{}">{}</span>', style, text)
