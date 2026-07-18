@@ -1,9 +1,11 @@
 """Скрипт автоматического фонового запуска и отправки рассылок."""
 
 import smtplib
-from django.core.management.base import BaseCommand
+
 from django.core.mail import send_mail
+from django.core.management.base import BaseCommand
 from django.utils import timezone
+
 from mailings.models import MailingManagement, MailingLog
 
 
@@ -63,6 +65,9 @@ class Command(BaseCommand):
                 # чтобы не отправлять одному и тому же клиенту письмо повторно,
                 # если скрипт запускается каждые 5 минут, а рассылка долгосрочная.
 
+                # Формируем имя или ставим заглушку, если оно не заполнено
+                client_name = client.full_name if getattr(client, 'full_name', None) else "Розничный клиент"
+
                 try:
                     send_mail(
                         subject=mailing.message.message_subject,
@@ -71,18 +76,18 @@ class Command(BaseCommand):
                         recipient_list=[client.email],
                         fail_silently=False,
                     )
-                    # Фиксируем успешную попытку в логах
+                    # ИСПРАВЛЕНО: Пишем в лог персональный отчет об успешной доставке
                     MailingLog.objects.create(
                         mailing=mailing,
                         status='success',
-                        server_response='Письмо успешно отправлено фоновым роботом.'
+                        server_response=f"Получатель: {client_name} | Email: {client.email} | Статус: Доставлено фоновым роботом"
                     )
                 except (smtplib.SMTPException, Exception) as e:
-                    # Фиксируем ошибку в логах
+                    # ИСПРАВЛЕНО: Пишем точечный отчет о сбое для конкретного адресата
                     MailingLog.objects.create(
                         mailing=mailing,
                         status='failed',
-                        server_response=str(e)
+                        server_response=f"Получатель: {client_name} | Email: {client.email} | Сбой SMTP: {str(e)}"
                     )
 
             self.stdout.write(self.style.SUCCESS(f"Рассылка ID {mailing.id} успешно обработана."))

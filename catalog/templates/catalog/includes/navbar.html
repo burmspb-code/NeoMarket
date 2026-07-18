@@ -11,82 +11,94 @@
         </button>
         
         <!-- Основные информационные разделы магазина -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'catalog:home' %}">
-                    <i class="bi bi-house-door me-1"></i>Главная
-                </a>
-            </li>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'catalog:home' %}">
+                        <i class="bi bi-house-door me-1"></i>Главная
+                    </a>
+                </li>
 
-            <!-- Элемент Каталог является выпадающим списком -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="catalogDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-grid me-1"></i>Каталог
-                </a>
-                <ul class="dropdown-menu shadow" aria-labelledby="catalogDropdown">
-                    <li>
-                        <a class="dropdown-item fw-bold" href="{% url 'catalog:catalog_list' %}">
-                            Все товары
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-
-                    <!-- Динамический вывод категорий из контекстного процессора -->
-                    {% for cat in all_categories %}
+                <!-- Элемент Каталог является выпадающим списком -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="catalogDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-grid me-1"></i>Каталог
+                    </a>
+                    <ul class="dropdown-menu shadow" aria-labelledby="catalogDropdown">
                         <li>
-                            {# Используем метод get_absolute_url, который мы прописали в модели #}
-                            <a class="dropdown-item" href="{{ cat.get_absolute_url }}">
-                                {{ cat.name }}
+                            <a class="dropdown-item fw-bold" href="{% url 'catalog:catalog_list' %}">
+                                Все товары
                             </a>
                         </li>
-                    {% empty %}
-                        <li><span class="dropdown-item text-muted">Категории не найдены</span></li>
-                    {% endfor %}
-                </ul>
-            </li>
+                        <li><hr class="dropdown-divider"></li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'blog:list' %}">
-                    <i class="bi bi-journal-text me-1"></i>Блог
-                </a>
-            </li>
+                        <!-- Динамический вывод категорий из контекстного процессора -->
+                        {% for cat in all_categories %}
+                            <li>
+                                {# Используем метод get_absolute_url, который мы прописали в модели #}
+                                <a class="dropdown-item" href="{{ cat.get_absolute_url }}">
+                                    {{ cat.name }}
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li><span class="dropdown-item text-muted">Категории не найдены</span></li>
+                        {% endfor %}
+                    </ul>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'catalog:contacts' %}">
-                    <i class="bi bi-envelope me-1"></i>Контакты
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'blog:list' %}">
+                        <i class="bi bi-journal-text me-1"></i>Блог
+                    </a>
+                </li>
 
-            {# Элемент Управление: выпадающий список для персонала (менеджеров и суперпользователей) #}
-            {% if user.is_authenticated and user.is_staff %}
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-info fw-medium" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-gear-fill me-1"></i>Управление
-                </a>
-                <ul class="dropdown-menu shadow" aria-labelledby="managementDropdown">
-                    <li>
-                        <!-- Кнопка добавления товара (исправлена под формат выпадающего списка) -->
-                        <a class="dropdown-item" href="{% url 'catalog:product_create' %}">
-                            <i class="bi bi-plus-square me-2 text-success"></i>Добавить товар
-                        </a>
-                    </li>
-                    <li>
-                        <!-- Ссылка на веб-интерфейс рассылок (восстановлен рабочий URL-тег) -->
-                        <a class="dropdown-item" href="{% url 'mailings:dashboard' %}">
-                            <i class="bi bi-envelope-paper-fill me-2 text-info"></i>Рассылки
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <!-- Ссылка на стандартную админку Django -->
-                        <a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank">
-                            <i class="bi bi-shield-lock me-2 text-warning"></i>Админ панель
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            {% endif %}
-        </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'catalog:contacts' %}">
+                        <i class="bi bi-envelope me-1"></i>Контакты
+                    </a>
+                </li>
+
+                {# Элемент Управление: выпадающий список для персонала (менеджеров и суперпользователей) #}
+                {% if user.is_authenticated and user.is_staff %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-info fw-medium" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-gear-fill me-1"></i>Управление
+                    </a>
+                    <ul class="dropdown-menu shadow" aria-labelledby="managementDropdown">
+
+                        {# Проверка для контент-менеджеров #}
+                        {% if perms.catalog.add_product %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'catalog:product_create' %}">
+                                <i class="bi bi-plus-square me-2 text-success"></i>Добавить товар
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {# Проверка для маркетологов #}
+                        {% if perms.mailings.view_mailingmanagement %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'mailings:dashboard' %}">
+                                <i class="bi bi-envelope-paper-fill me-2 text-info"></i>Рассылки
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {# ИСПРАВЛЕНО: Разделитель покажется ТОЛЬКО если активен один из пунктов выше #}
+                        {% if perms.catalog.add_product or perms.mailings.view_mailingmanagement %}
+                            <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+
+                        <li>
+                            <!-- Ссылка на стандартную админку Django -->
+                            <a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank">
+                                <i class="bi bi-shield-lock me-2 text-warning"></i>Админ панель
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
 
             <!-- Пользовательский блок (Корзина, Избранное, Профиль) -->
             <ul class="navbar-nav ms-auto align-items-center">
@@ -138,7 +150,6 @@
                     </a>
                 </li>
                 {% endif %}
-
             </ul>
         </div>
     </div>

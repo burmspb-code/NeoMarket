@@ -3,18 +3,18 @@
 import smtplib
 
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DetailView
 from django.views.generic import ListView
 
 from mailings.forms import MailingManagementForm
-from mailings.models import MailingLog, MailingClient
-from mailings.models import MailingManagement
+from mailings.models import MailingLog, MailingClient, MailingManagement, MailingMessage
 
 
 class ManualStartMailingView(View):
@@ -51,25 +51,30 @@ class ManualStartMailingView(View):
 
         # --- Отправка писем и логирование ---
         for client in recipients:
+            # Берем имя или подставляем заглушку, если поле пустое
+            client_name = client.full_name if client.full_name else "Розничный клиент"
+
             try:
                 send_mail(
                     subject=mailing.message.message_subject,
                     message=mailing.message.message_body,
-                    from_email=None,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[client.email],
                     fail_silently=False,
                 )
+                # Записываем в строку ответа ФИО и Email получателя писем
                 MailingLog.objects.create(
                     mailing=mailing,
                     status='success',
-                    server_response='Письмо успешно доставлено через веб-интерфейс (CBV).'
+                    server_response=f"Адресат: {client_name} | Email: {client.email} | Статус: Доставлено (200 OK)"
                 )
                 success_count += 1
             except (smtplib.SMTPException, Exception) as e:
+                # Записываем детальные данные сбоя для конкретного человека
                 MailingLog.objects.create(
                     mailing=mailing,
                     status='failed',
-                    server_response=str(e)
+                    server_response=f"Адресат: {client_name} | Email: {client.email} | Ошибка SMTP: {str(e)}"
                 )
                 failed_count += 1
 
@@ -116,12 +121,16 @@ class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView
     # True — выкинет ошибку 403 Forbidden, False — перенаправит на страницу логина
     raise_exception = True
 
+    def get_queryset(self):
+        """Жадно подгружаем сообщения для исключения пустых строк в шаблоне."""
+        return super().get_queryset().select_related('message')
+
     def get_context_data(self, **kwargs):
-        """Расчет показателей для карточек и выгрузка логов на фронтенд."""
+        """Расчет показателей для карточек аналитики и выгрузка логов."""
         context = super().get_context_data(**kwargs)
         now = timezone.now()
 
-        # Всего рассылок, активных рассылок, всего получателей
+        # Количество кампаний (рассылок) в системе
         context['total_mailings'] = MailingManagement.objects.count()
         context['active_mailings'] = MailingManagement.objects.filter(
             status='launched',
@@ -130,9 +139,18 @@ class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView
         ).count()
         context['total_clients'] = MailingClient.objects.count()
 
-        # Получаем 20 последних логов отправки (select_related оптимизирует запросы к БД)
-        from mailings.models import MailingLog  # Убедитесь, что модель импортирована вверху файла
-        context['recent_logs'] = MailingLog.objects.select_related('mailing__message').all()[:20]
+        # Считаем суммарное количество адресатов по ВСЕМ созданным рассылкам
+        # Мы используем сквозной подсчет связей Many-to-Many
+        context['total_emails_targeted'] = MailingManagement.objects.values('recipients').count()
+
+        # Универсальный подсчет логов (физически выполненные попытки отправки)
+        successful_attempts = MailingLog.objects.filter(status='success').count()
+        total_logs_in_db = MailingLog.objects.count()
+        failed_attempts = total_logs_in_db - successful_attempts
+
+        context['successful_attempts'] = successful_attempts
+        context['failed_attempts'] = failed_attempts
+        context['total_sent_messages'] = total_logs_in_db
 
         return context
 
@@ -206,3 +224,18 @@ class MailingLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     # Требуем то же право, что и для просмотра дашборда
     permission_required = 'mailings.view_mailingmanagement'
     raise_exception = True
+
+
+class MailingDetailView(PermissionRequiredMixin, DetailView):
+    """Контроллер для отображения детальной информации о рассылке и списка её получателей."""
+    model = MailingManagement
+    template_name = 'mailings/mailing_detail.html'
+    context_object_name = 'mailing'
+    permission_required = 'mailings.view_mailingmanagement'
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Исправлено: обращаемся к полю recipients, описанному в модели
+        context['clients'] = self.object.recipients.all()
+        return context

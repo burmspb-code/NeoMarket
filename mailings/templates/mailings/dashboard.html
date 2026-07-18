@@ -37,9 +37,10 @@
         </a>
     </div>
 
+
     <!-- КАРТОЧКИ ПОКАЗАТЕЛЕЙ (МЕТРИКИ) -->
     <div class="row g-4 mb-5">
-        <!-- Всего создано -->
+        <!-- Всего рассылок (Кампаний) -->
         <div class="col-md-4">
             <div class="card card-metric h-100 shadow-sm bg-white">
                 <div class="card-body d-flex align-items-center p-4">
@@ -69,7 +70,7 @@
             </div>
         </div>
 
-        <!-- Всего получателей -->
+        <!-- База получателей (Уникальные клиенты в CRM) -->
         <div class="col-md-4">
             <div class="card card-metric h-100 shadow-sm bg-white">
                 <div class="card-body d-flex align-items-center p-4">
@@ -77,7 +78,7 @@
                         <i class="bi bi-people-fill fs-3"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted text-uppercase small fw-bold mb-1" style="letter-spacing: 0.5px;">База получателей</h6>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1" style="letter-spacing: 0.5px;">Общая база клиентов</h6>
                         <h3 class="fw-bold text-dark mb-0">{{ total_clients }}</h3>
                     </div>
                 </div>
@@ -85,14 +86,68 @@
         </div>
     </div>
 
+    <!-- Ряд аналитики: Отправлено писем, Статус доставки и Кнопка Журнала логов -->
+    <div class="row g-4 mb-5">
+
+        <!-- Отправлено писем (Суммарный охват всех кампаний) -->
+        <div class="col-md-4">
+            <div class="card card-metric h-100 shadow-sm bg-white border-0">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="p-3 bg-info-subtle rounded-3 text-info me-3">
+                        <i class="bi bi-envelope-paper-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1" style="letter-spacing: 0.5px;">План отправки (Охват)</h6>
+                        <!-- Выводим общее количество адресатов, привязанных к кампаниям -->
+                        <h3 class="fw-bold text-dark mb-0">{{ total_emails_targeted }} писем</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Успешно / Сбои (Фактически выполненные попытки) -->
+        <div class="col-md-4">
+            <div class="card card-metric h-100 shadow-sm bg-white border-0">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="p-3 bg-success-subtle rounded-3 text-success me-3">
+                        <i class="bi bi-check-all fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1" style="letter-spacing: 0.5px;">Выполнено / Сбои</h6>
+                        <h3 class="fw-bold mb-0">
+                            <!-- Показывает реальные физические строки логов (например, 7 / 0) -->
+                            <span class="text-success">{{ successful_attempts }}</span>
+                            <span class="text-muted mx-1">/</span>
+                            <span class="text-danger">{{ failed_attempts }}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка-Кнопка - Журнал логов -->
+        <div class="col-md-4">
+            <a href="{% url 'mailings:log_list' %}" class="card card-metric h-100 shadow-sm bg-light text-decoration-none border link-underline-opacity-0 link-underline-opacity-100-hover d-block" title="Открыть полный журнал логов">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="p-3 bg-secondary-subtle rounded-3 text-secondary me-3">
+                        <i class="bi bi-journal-text fs-3 text-info"></i>
+                    </div>
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase small fw-bold mb-1" style="letter-spacing: 0.5px;">Логирование</h6>
+                            <h3 class="fw-bold text-secondary mb-0 fs-4">Журнал логов</h3>
+                        </div>
+                        <i class="bi bi-arrow-right-short fs-2 text-muted"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
     <!-- ТАБЛИЦА ВСЕХ РАССЫЛОК -->
     <div class="card table-container shadow-sm p-4">
         <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-list-task me-2 text-secondary"></i>История и запланированные кампании</h5>
-
-        <!-- Ссылка на отдельную страницу журналов -->
-        <a href="{% url 'mailings:log_list' %}" class="btn btn-outline-secondary btn-sm fw-semibold">
-            <i class="bi bi-journal-text me-1"></i> Открыть журнал логов
-        </a>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -107,19 +162,43 @@
                 <tbody class="small">
                     {% for mailing in mailings %}
                     <tr>
-                        <td class="ps-3 fw-semibold text-dark">{{ mailing.message.message_subject }}</td>
-                        <td>
-                            {# Проверка по системным кодам из CHOICES модели MailingManagement #}
+                        <!--Тема сообщения -->
+                        <td class="align-middle">
+                            <!-- Иконка bi-people-fill заменена на интуитивно понятную bi-card-list -->
+                            <a href="{% url 'mailings:mailing_detail' mailing.pk %}"
+                               class="fw-semibold text-primary link-underline-opacity-0 link-underline-opacity-100-hover"
+                               title="Посмотреть карточку и параметры рассылки">
+                                {{ mailing.message.message_subject }}
+                                <i class="bi bi-card-list text-primary-emphasis opacity-50 small ms-1"></i>
+                            </a>
+                        </td>
+
+                        <!-- Статус Создана / Запустить сейчас с интерактивной мини-кнопкой -->
+                        <td class="align-middle">
                             {% if mailing.status == 'launched' %}
-                                <span class="badge bg-success-subtle text-success badge-status px-2.5 py-1.5 rounded">Запущена</span>
+                                <span class="badge bg-success-subtle text-success badge-status px-2 py-1 rounded">Запущена</span>
                             {% elif mailing.status == 'completed' %}
-                                <span class="badge bg-secondary-subtle text-secondary badge-status px-2.5 py-1.5 rounded">Завершена</span>
+                                <span class="badge bg-secondary-subtle text-secondary badge-status px-2 py-1 rounded">Завершена</span>
                             {% else %}
-                                <span class="badge bg-warning-subtle text-warning badge-status px-2.5 py-1.5 rounded">Создана</span>
+                                <!-- Вывод для созданной рассылки: желтый бейдж + интерактивная кнопочка через слэш -->
+                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                    <span class="badge bg-warning-subtle text-warning badge-status px-2 py-1 rounded">Создана</span>
+                                    <span class="text-muted small">/</span>
+
+                                    <!-- Мини-кнопка в рамочке с закруглением и эффектом изменения фона при hover -->
+                                    <a href="{% url 'mailings:manual_start' mailing_id=mailing.pk %}"
+                                       class="btn btn-sm btn-outline-success rounded-3 px-2 py-0.5 fw-semibold d-inline-flex align-items-center text-decoration-none"
+                                       style="font-size: 0.72rem; letter-spacing: 0.3px; line-height: 1.2; transition: all 0.2s ease;"
+                                       title="Мгновенно запустить эту рассылку">
+                                        <i class="bi bi-play-fill me-0.5" style="font-size: 0.85rem;"></i>Запустить сейчас
+                                    </a>
+                                </div>
                             {% endif %}
                         </td>
-                        <td class="text-muted">{{ mailing.start_time|date:"d.m.Y H:i" }}</td>
-                        <td class="text-muted">{{ mailing.end_time|date:"d.m.Y H:i" }}</td>
+
+                        <!-- Даты -->
+                        <td class="text-muted align-middle">{{ mailing.start_time|date:"d.m.Y H:i" }}</td>
+                        <td class="text-muted align-middle">{{ mailing.end_time|date:"d.m.Y H:i" }}</td>
                     </tr>
                     {% empty %}
                     <tr>

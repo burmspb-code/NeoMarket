@@ -1,7 +1,7 @@
 """Маршруты для приложения mailings."""
 
 from django.urls import path
-from mailings.views import ManualStartMailingView, MailingDashboardView, MailingCreateView, MailingLogListView
+from mailings.views import ManualStartMailingView, MailingDashboardView, MailingCreateView, MailingLogListView, MailingDetailView
 
 app_name = 'mailings'
 
@@ -14,4 +14,6 @@ urlpatterns = [
     path('create/', MailingCreateView.as_view(), name='create'),
     # Страница просмотра логов отправки
     path('logs/', MailingLogListView.as_view(), name='log_list'),
+    # Страница промотра детальной информации о рассылке
+    path("mailing/<int:pk>/", MailingDetailView.as_view(), name="mailing_detail"),
 ]
