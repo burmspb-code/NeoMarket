@@ -28,19 +28,20 @@ class MailingManagementForm(forms.ModelForm):
         max_length=150,
         required=False,
         label="Тема нового сообщения",
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Введите тему письма'
-        })
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Введите тему письма"}
+        ),
     )
     message_body = forms.CharField(
         required=False,
         label="Текст нового сообщения",
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 4,
-            'placeholder': 'Введите текст письма'
-        })
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Введите текст письма",
+            }
+        ),
     )
 
     class Meta:
@@ -52,30 +53,33 @@ class MailingManagementForm(forms.ModelForm):
             widgets (dict): Словарь кастомных HTML-виджетов и атрибутов
                 для адаптации полей под UI-шаблон.
         """
+
         model = MailingManagement
-        fields = ['start_time', 'end_time', 'message', 'recipients']
+        fields = ["start_time", "end_time", "message", "recipients"]
 
         widgets = {
-            'start_time': forms.DateTimeInput(
-                attrs={'class': 'form-control', 'type': 'datetime-local'},
-                format='%Y-%m-%dT%H:%M'
+            "start_time": forms.DateTimeInput(
+                attrs={"class": "form-control", "type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
             ),
-            'end_time': forms.DateTimeInput(
-                attrs={'class': 'form-control', 'type': 'datetime-local'},
-                format='%Y-%m-%dT%H:%M'
+            "end_time": forms.DateTimeInput(
+                attrs={"class": "form-control", "type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
             ),
-            'message': forms.Select(attrs={'class': 'form-select'}),
-            'recipients': forms.SelectMultiple(attrs={'class': 'form-select', 'size': '5'}),
+            "message": forms.Select(attrs={"class": "form-select"}),
+            "recipients": forms.SelectMultiple(
+                attrs={"class": "form-select", "size": "5"}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         """Инициализирует экземпляр формы и настраивает выпадающий список сообщений."""
         super().__init__(*args, **kwargs)
-        self.fields['message'].required = False
-        self.fields['message'].label = "Выберите сообщение для рассылки"
+        self.fields["message"].required = False
+        self.fields["message"].label = "Выберите сообщение для рассылки"
 
         # Меняем дефолтные прочерки '---------' на понятный пункт для создания
-        self.fields['message'].empty_label = "+ Создать новое сообщение"
+        self.fields["message"].empty_label = "+ Создать новое сообщение"
 
     def clean(self):
         """Выполняет комплексную валидацию взаимосвязанных полей формы.
@@ -93,9 +97,9 @@ class MailingManagementForm(forms.ModelForm):
             dict[str, Any]: Словарь очищенных и проверенных данных `cleaned_data`.
         """
         cleaned_data = super().clean()
-        message = cleaned_data.get('message')
-        subject = cleaned_data.get('message_subject')
-        body = cleaned_data.get('message_body')
+        message = cleaned_data.get("message")
+        subject = cleaned_data.get("message_subject")
+        body = cleaned_data.get("message_body")
 
         # Валидация бизнес-логики: исключаем отправку пустых рассылок
         if not message and (not subject or not body):

@@ -101,7 +101,7 @@ class EmailConfirmView(View):
         # Проверяем, существует ли пользователь и валиден ли токен (не истек ли срок)
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
-            user.email_status = 'verified' # Меняем статус почты
+            user.email_status = "verified"  # Меняем статус почты
             user.save()
 
             # Добавляем красивое уведомление, которое отобразится на странице входа

@@ -3,15 +3,24 @@ import redis
 # ====== Временный обход ограничений в рамках работы с устаревшей версией Redis =============================
 # Патч №1: Форсируем протокол RESP2 для всех соединений
 original_init = redis.connection.Connection.__init__
+
+
 def patched_init(self, *args, **kwargs):
-    kwargs['protocol'] = 2
+    kwargs["protocol"] = 2
     original_init(self, *args, **kwargs)
+
+
 redis.connection.Connection.__init__ = patched_init
+
 
 # Патч №2: Глушим проверку Maintenance Notifications, которая требует RESP3
 def patched_configure_maintenance_notifications(self, *args, **kwargs):
     self._maint_notifications_pool_handler = None
-redis.connection.Connection._configure_maintenance_notifications = patched_configure_maintenance_notifications
+
+
+redis.connection.Connection._configure_maintenance_notifications = (
+    patched_configure_maintenance_notifications
+)
 # ============================================================================================================
 
 import os
@@ -43,14 +52,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Сторонние библиотеки
     "phonenumber_field",  # Модуль валидации номера телефона
     "django_countries",  # Модуль выбора страны из выпадающего списка
     "django_recaptcha",  # Модуль капчи
-    "debug_toolbar", # Панель для отладки сайта
-    'django_celery_beat',  # Добавляем планировщик в базу
-
+    "debug_toolbar",  # Панель для отладки сайта
+    "django_celery_beat",  # Добавляем планировщик в базу
     # Локальные приложения проекта
     "catalog",
     "library",
@@ -96,17 +103,28 @@ TEMPLATES = [
 # Точка входа для WSGI-серверов
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Настройки базы данных PostgreSQL
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+# УМНОЕ ПЕРЕКЛЮЧЕНИЕ БАЗ ДАННЫХ (Идеально для продакшена и проверки)
+if os.getenv("DB_NAME"):
+    # Если в .env заполнены переменные — подключаемся к базе PostgreSQL на VPS
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+        }
     }
-}
+else:
+    # Если в .env пусто (как у наставника) — автоматически разворачиваем локальную SQLite3
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
 
 # Валидаторы паролей для безопасности учетных записей
 AUTH_PASSWORD_VALIDATORS = [
@@ -209,31 +227,27 @@ INTERNAL_IPS = [
 ]
 
 # Возвращаем чистые классические URL без параметров в строке
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 
 # Переопределяем пул соединений для БРОКЕРА
 # Это заставит внутренний драйвер принудительно использовать старый протокол RESP2
 CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'redis_version': 3,
-    'connection_pool_cls': ConnectionPool,
-    'connection_pool_kwargs': {
-        'protocol': 2
-    }
+    "redis_version": 3,
+    "connection_pool_cls": ConnectionPool,
+    "connection_pool_kwargs": {"protocol": 2},
 }
 
 # Переопределяем пул соединений для БЭКЕНДА РЕЗУЛЬТАТОВ
 CELERY_REDIS_BACKEND_TRANSPORT_OPTIONS = {
-    'redis_version': 3,
-    'connection_pool_cls': ConnectionPool,
-    'connection_pool_kwargs': {
-        'protocol': 2
-    }
+    "redis_version": 3,
+    "connection_pool_cls": ConnectionPool,
+    "connection_pool_kwargs": {"protocol": 2},
 }
 
 # Остальные стандартные параметры вашего проекта
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"

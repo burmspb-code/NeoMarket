@@ -17,23 +17,19 @@ class MailingClient(models.Model):
         comment (TextField): Комментарий.
         user (ForeignKey): Связь с зарегистрированными покупателями магазина.
     """
+
     email = models.EmailField(
         unique=True,
         blank=False,
         null=False,
         verbose_name="Email",
-        help_text="Электронная почта получателя"
+        help_text="Электронная почта получателя",
     )
     full_name = models.CharField(
-        max_length=150,
-        verbose_name="Ф.И.О.",
-        help_text="Ф.И.О. получателя"
+        max_length=150, verbose_name="Ф.И.О.", help_text="Ф.И.О. получателя"
     )
     comment = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Комментарий",
-        help_text="Комментарий"
+        blank=True, null=True, verbose_name="Комментарий", help_text="Комментарий"
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -41,14 +37,15 @@ class MailingClient(models.Model):
         blank=True,
         null=True,
         related_name="mailing_clients",
-        verbose_name="Аккаунт получателя"
+        verbose_name="Аккаунт получателя",
     )
 
     class Meta:
         """Класс метаданных."""
+
         verbose_name = "Получатель"
         verbose_name_plural = "Получатели"
-        ordering = ['email']
+        ordering = ["email"]
 
     def __str__(self):
         return f"{self.full_name} {self.email}"
@@ -67,20 +64,21 @@ class MailingMessage(models.Model):
         blank=False,
         null=False,
         verbose_name="Тема",
-        help_text="Введите тему сообщения"
+        help_text="Введите тему сообщения",
     )
     message_body = models.TextField(
         blank=False,
         null=False,
         verbose_name="Текст сообщения",
-        help_text="Введите текст сообщения"
+        help_text="Введите текст сообщения",
     )
 
     class Meta:
         """Класс метаданных."""
+
         verbose_name = "Сообщение"
         verbose_name_plural = "Сообщения"
-        ordering = ['message_subject']
+        ordering = ["message_subject"]
 
     def __str__(self):
         return f"{self.message_subject}"
@@ -99,22 +97,23 @@ class MailingManagement(models.Model):
     Атрибуты:
         STATUS_CHOICES: (list[tuple[str, str]]): Статус рассылки.
     """
+
     start_time = models.DateTimeField(
         blank=False,
         null=False,
         verbose_name="Дата и время начала отправки",
-        help_text="Введите дату и время начала рассылки"
+        help_text="Введите дату и время начала рассылки",
     )
     end_time = models.DateTimeField(
         blank=False,
         null=False,
         verbose_name="Дата и время окончания отправки",
-        help_text="Введите дату и время окончания рассылки"
+        help_text="Введите дату и время окончания рассылки",
     )
     STATUS_CHOICES: list[tuple[str, str]] = [
-        ('created', 'Созданы'),
-        ('launched', 'Запущена'),
-        ('completed', 'Завершена'),
+        ("created", "Созданы"),
+        ("launched", "Запущена"),
+        ("completed", "Завершена"),
     ]
     status = models.CharField(
         max_length=10,
@@ -122,7 +121,7 @@ class MailingManagement(models.Model):
         blank=False,
         null=False,
         verbose_name="Статус рассылки",
-        help_text="Выберите статус рассылки"
+        help_text="Выберите статус рассылки",
     )
     message = models.ForeignKey(
         MailingMessage,
@@ -130,13 +129,10 @@ class MailingManagement(models.Model):
         blank=False,
         null=False,
         related_name="messages",
-        verbose_name="Сообщение"
+        verbose_name="Сообщение",
     )
     recipients = models.ManyToManyField(
-        MailingClient,
-        blank=False,
-        related_name="recipients",
-        verbose_name="Получатели"
+        MailingClient, blank=False, related_name="recipients", verbose_name="Получатели"
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -144,14 +140,15 @@ class MailingManagement(models.Model):
         blank=False,
         null=False,
         related_name="mailings",
-        verbose_name="Автор"
+        verbose_name="Автор",
     )
 
     class Meta:
         """Класс метаданных."""
+
         verbose_name = "рассылку"
         verbose_name_plural = "Рассылки"
-        ordering = ['start_time', 'end_time']
+        ordering = ["start_time", "end_time"]
 
     def __str__(self):
         return f"{self.message}"
@@ -167,11 +164,11 @@ class MailingManagement(models.Model):
         now = timezone.now()
 
         if mailing_start <= now <= mailing_end:
-            self.status = 'launched'
+            self.status = "launched"
         elif mailing_start > now:
-            self.status = 'created'
+            self.status = "created"
         else:
-            self.status = 'completed'
+            self.status = "completed"
 
         # Безопасное обновление поля в базе данных без вызова self.save()
         if self.pk:
@@ -184,7 +181,9 @@ class MailingManagement(models.Model):
         if self.start_time and self.end_time:
             if self.end_time < self.start_time:
                 raise ValidationError(
-                    {"end_time": "Время окончания не может быть меньше времени начала рассылки."}
+                    {
+                        "end_time": "Время окончания не может быть меньше времени начала рассылки."
+                    }
                 )
 
     def save(self, *args, **kwargs):
@@ -193,17 +192,17 @@ class MailingManagement(models.Model):
         if not self.pk:
             now = timezone.now()
             if self.start_time <= now <= self.end_time:
-                self.status = 'launched'
+                self.status = "launched"
             elif self.start_time > now:
-                self.status = 'created'
+                self.status = "created"
             else:
-                self.status = 'completed'
+                self.status = "completed"
 
         super().save(*args, **kwargs)
 
         # ЮВЕЛИРНАЯ ИНВАЛИДАЦИЯ КЭША:
         # Удаляем из Redis кэш только этой конкретной рассылки по её ID
-        cache_key = f'mailing_detail_{self.pk}'
+        cache_key = f"mailing_detail_{self.pk}"
         cache.delete(cache_key)
 
 
@@ -218,37 +217,35 @@ class MailingLog(models.Model):
     """
 
     LOG_STATUS_CHOICES: list[tuple[str, str]] = [
-        ('success', 'Успешно'),
-        ('failed', 'Не успешно'),  # В точности как просит ТЗ (Не успешно)
+        ("success", "Успешно"),
+        ("failed", "Не успешно"),  # В точности как просит ТЗ (Не успешно)
     ]
 
     mailing = models.ForeignKey(
         MailingManagement,
         on_delete=models.CASCADE,
         related_name="logs",
-        verbose_name="Рассылка"
+        verbose_name="Рассылка",
     )
     attempt_time = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="Дата и время попытки"
+        auto_now_add=True, verbose_name="Дата и время попытки"
     )
     status = models.CharField(
-        max_length=10,
-        choices=LOG_STATUS_CHOICES,
-        verbose_name="Статус"
+        max_length=10, choices=LOG_STATUS_CHOICES, verbose_name="Статус"
     )
     server_response = models.TextField(
         blank=True,
         null=True,
         verbose_name="Ответ почтового сервера",
-        help_text="Здесь лог запишет причину ошибки, если отправка сорвется"
+        help_text="Здесь лог запишет причину ошибки, если отправка сорвется",
     )
 
     class Meta:
         """Класс метаданных."""
+
         verbose_name = "Лог отправки"
         verbose_name_plural = "Логи отправки"
-        ordering = ['-attempt_time']
+        ordering = ["-attempt_time"]
 
     def __str__(self):
         return f"Попытка #{self.id} для рассылки {self.mailing.id} [{self.get_status_display()}]"

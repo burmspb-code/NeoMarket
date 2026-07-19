@@ -5,25 +5,60 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('mailings', '0001_initial'),
+        ("mailings", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MailingLog',
+            name="MailingLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('attempt_time', models.DateTimeField(auto_now_add=True, verbose_name='Дата и время попытки')),
-                ('status', models.CharField(choices=[('success', 'Успешно'), ('failed', 'Не успешно')], max_length=10, verbose_name='Статус')),
-                ('server_response', models.TextField(blank=True, help_text='Здесь лог запишет причину ошибки, если отправка сорвется', null=True, verbose_name='Ответ почтового сервера')),
-                ('mailing', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs', to='mailings.mailingmanagement', verbose_name='Рассылка')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "attempt_time",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата и время попытки"
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("success", "Успешно"), ("failed", "Не успешно")],
+                        max_length=10,
+                        verbose_name="Статус",
+                    ),
+                ),
+                (
+                    "server_response",
+                    models.TextField(
+                        blank=True,
+                        help_text="Здесь лог запишет причину ошибки, если отправка сорвется",
+                        null=True,
+                        verbose_name="Ответ почтового сервера",
+                    ),
+                ),
+                (
+                    "mailing",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="logs",
+                        to="mailings.mailingmanagement",
+                        verbose_name="Рассылка",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Лог отправки',
-                'verbose_name_plural': 'Логи отправки',
-                'ordering': ['-attempt_time'],
+                "verbose_name": "Лог отправки",
+                "verbose_name_plural": "Логи отправки",
+                "ordering": ["-attempt_time"],
             },
         ),
     ]

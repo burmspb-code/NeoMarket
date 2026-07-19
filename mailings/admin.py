@@ -10,6 +10,7 @@ from mailings.models import MailingClient, MailingMessage, MailingManagement, Ma
 @admin.register(MailingClient)
 class MailingClientAdmin(admin.ModelAdmin):
     """Панель администратора для управления получателями рассылок."""
+
     # Поля, которые будут отображаться в таблице
     list_display = ("email", "full_name", "comment", "user")
 
@@ -23,6 +24,7 @@ class MailingClientAdmin(admin.ModelAdmin):
 @admin.register(MailingMessage)
 class MailingMessageAdmin(admin.ModelAdmin):
     """Панель администратора для управления шаблонами сообщений."""
+
     # Поля, которые будут отображаться в таблице
     list_display = ("message_subject", "message_body")
 
@@ -36,6 +38,7 @@ class MailingMessageAdmin(admin.ModelAdmin):
 @admin.register(MailingManagement)
 class MailingManagementAdmin(admin.ModelAdmin):
     """Панель администратора для настройки параметров и расписания рассылок."""
+
     # Поля, которые будут отображаться в таблице
     list_display = ("message", "status", "start_time", "end_time")
 
@@ -52,10 +55,10 @@ class MailingManagementAdmin(admin.ModelAdmin):
     def start_button(self, obj):
         """Генерация кнопки ручного запуска для таблицы и формы редактирования."""
         if obj.pk:
-            url = reverse('mailings:manual_start', kwargs={'mailing_id': obj.pk})
+            url = reverse("mailings:manual_start", kwargs={"mailing_id": obj.pk})
             return format_html(
                 '<a class="button" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;" href="{}">▶ Запустить сейчас</a>',
-                url
+                url,
             )
         return "Сначала сохраните рассылку"
 

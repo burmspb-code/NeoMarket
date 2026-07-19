@@ -6,21 +6,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('mailings', '0002_mailinglog'),
+        ("mailings", "0002_mailinglog"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='mailingmanagement',
-            options={'ordering': ['start_time', 'end_time'], 'verbose_name': 'рассылку', 'verbose_name_plural': 'Рассылки'},
+            name="mailingmanagement",
+            options={
+                "ordering": ["start_time", "end_time"],
+                "verbose_name": "рассылку",
+                "verbose_name_plural": "Рассылки",
+            },
         ),
         migrations.AddField(
-            model_name='mailingmanagement',
-            name='owner',
-            field=models.ForeignKey(default=12, on_delete=django.db.models.deletion.CASCADE, related_name='mailings', to=settings.AUTH_USER_MODEL, verbose_name='Автор'),
+            model_name="mailingmanagement",
+            name="owner",
+            field=models.ForeignKey(
+                default=12,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="mailings",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Автор",
+            ),
             preserve_default=False,
         ),
     ]

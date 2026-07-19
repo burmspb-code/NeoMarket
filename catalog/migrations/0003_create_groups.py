@@ -7,28 +7,30 @@ def create_system_groups(apps, schema_editor):
 
     с жестким разграничением прав согласно ТЗ безопасности интернет-магазина.
     """
-    Group = apps.get_model('auth', 'Group')
-    Permission = apps.get_model('auth', 'Permission')
+    Group = apps.get_model("auth", "Group")
+    Permission = apps.get_model("auth", "Permission")
 
     # =========================================================================
     # --- 1. ГРУППА: МОДЕРАТОРЫ ---
     # =========================================================================
-    moderators_group, created = Group.objects.get_or_create(name='Модераторы')
+    moderators_group, created = Group.objects.get_or_create(name="Модераторы")
 
     # А. Права для работы с Блогом и Каталогом (Только просмотр и изменение)
     mod_content_perms = Permission.objects.filter(
-        content_type__app_label__in=['blog', 'catalog'],
+        content_type__app_label__in=["blog", "catalog"],
         codename__in=[
-            'view_product', 'change_product',
-            'view_category', 'change_category',
-            'view_article', 'change_article'
-        ]
+            "view_product",
+            "change_product",
+            "view_category",
+            "change_category",
+            "view_article",
+            "change_article",
+        ],
     )
 
     # Б. Права для Пользователей (Только изменение, чтобы делать неактивными)
     mod_user_perms = Permission.objects.filter(
-        content_type__app_label='users',
-        codename__in=['change_customuser']
+        content_type__app_label="users", codename__in=["change_customuser"]
     )
 
     # Объединяем и привязываем права к Модераторам (Доступа к 'mailings' у них НЕТ)
@@ -37,15 +39,15 @@ def create_system_groups(apps, schema_editor):
     # =========================================================================
     # --- 2. ГРУППА: КОНТЕНТ-МЕНЕДЖЕРЫ ---
     # =========================================================================
-    content_group, created = Group.objects.get_or_create(name='Контент-менеджеры')
+    content_group, created = Group.objects.get_or_create(name="Контент-менеджеры")
 
     # Автоматически собираем ВСЕ права для Блога, Каталога и Рассылок.
     # Приложение 'users' сюда НЕ ВКЛЮЧАЕМ для безопасности профилей клиентов.
     content_permissions = Permission.objects.filter(
-        content_type__app_label__in=['blog', 'catalog', 'mailings']
+        content_type__app_label__in=["blog", "catalog", "mailings"]
     ).exclude(
         # Защита витрины: забираем у менеджера права на полное УДАЛЕНИЕ категорий и товаров
-        codename__in=['delete_product', 'delete_category']
+        codename__in=["delete_product", "delete_category"]
     )
 
     # Железобетонно привязываем собранный пакет прав к Контент-менеджерам
@@ -54,21 +56,20 @@ def create_system_groups(apps, schema_editor):
 
 def remove_system_groups(apps, schema_editor):
     """Откат миграции: безопасно удаляет группы при отзыве миграции назад."""
-    Group = apps.get_model('auth', 'Group')
-    Group.objects.filter(name__in=['Модераторы', 'Контент-менеджеры']).delete()
+    Group = apps.get_model("auth", "Group")
+    Group.objects.filter(name__in=["Модераторы", "Контент-менеджеры"]).delete()
 
 
 class Migration(migrations.Migration):
     dependencies = [
         # Зависимость от предыдущей миграции каталога
-        ('catalog', '0002_alter_category_slug'),
-
+        ("catalog", "0002_alter_category_slug"),
         # Зависимости от начальных миграций всех рабочих приложений проекта.
         # Это гарантирует, что Django сначала поднимет все таблицы и сгенерирует права,
         # и только потом наш скрипт свяжет их с группами на чистой базе наставника!
-        ('mailings', '0001_initial'),
-        ('blog', '0001_initial'),
-        ('users', '0001_initial'),
+        ("mailings", "0001_initial"),
+        ("blog", "0001_initial"),
+        ("users", "0001_initial"),
     ]
 
     operations = [

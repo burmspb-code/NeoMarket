@@ -4,14 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0003_create_groups'),
+        ("catalog", "0003_create_groups"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='category',
-            options={'ordering': ['name'], 'verbose_name': 'категорию', 'verbose_name_plural': 'категории'},
+            name="category",
+            options={
+                "ordering": ["name"],
+                "verbose_name": "категорию",
+                "verbose_name_plural": "категории",
+            },
         ),
     ]

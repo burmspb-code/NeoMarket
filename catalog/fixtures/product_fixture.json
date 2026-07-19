@@ -29,7 +29,7 @@
         "price": "1250.00",
         "created_at": "2026-07-14T20:13:37.598Z",
         "updated_at": "2026-07-14T21:12:27.232Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -45,7 +45,7 @@
         "price": "950.00",
         "created_at": "2026-07-14T21:47:54.421Z",
         "updated_at": "2026-07-14T21:56:54.965Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -61,7 +61,7 @@
         "price": "900.00",
         "created_at": "2026-07-14T21:49:58.002Z",
         "updated_at": "2026-07-14T21:50:35.695Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -77,7 +77,7 @@
         "price": "950.00",
         "created_at": "2026-07-14T21:51:46.587Z",
         "updated_at": "2026-07-14T21:51:46.587Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -93,7 +93,7 @@
         "price": "1450.00",
         "created_at": "2026-07-14T22:05:12.070Z",
         "updated_at": "2026-07-14T22:05:12.070Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -109,7 +109,7 @@
         "price": "1950.00",
         "created_at": "2026-07-14T22:06:22.243Z",
         "updated_at": "2026-07-14T22:06:22.243Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -125,7 +125,7 @@
         "price": "1500.00",
         "created_at": "2026-07-14T22:13:38.847Z",
         "updated_at": "2026-07-14T22:13:38.847Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -141,7 +141,7 @@
         "price": "1510.00",
         "created_at": "2026-07-14T22:14:54.725Z",
         "updated_at": "2026-07-14T22:14:54.725Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -157,7 +157,7 @@
         "price": "1520.00",
         "created_at": "2026-07-14T22:21:02.999Z",
         "updated_at": "2026-07-14T22:23:43.458Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },
@@ -173,7 +173,7 @@
         "price": "1530.00",
         "created_at": "2026-07-14T22:22:22.548Z",
         "updated_at": "2026-07-14T22:23:10.809Z",
-        "owner": 12,
+        "owner": 1,
         "published": true
     }
 },

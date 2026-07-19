@@ -21,24 +21,27 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Основной метод выполнения консольной команды."""
         now = timezone.now()
-        self.stdout.write(self.style.MIGRATE_LABEL(f"[{now:%d.%m.%Y %H:%M:%S}] Запуск робота рассылок..."))
+        self.stdout.write(
+            self.style.MIGRATE_LABEL(
+                f"[{now:%d.%m.%Y %H:%M:%S}] Запуск робота рассылок..."
+            )
+        )
 
         # 1. Автоматически переводим рассылки, чье время истекло, в статус completed
         expired_mailings = MailingManagement.objects.filter(
-            status__in=['created', 'launched'],
-            end_time__lt=now
+            status__in=["created", "launched"], end_time__lt=now
         )
         for mailing in expired_mailings:
-            mailing.status = 'completed'
-            mailing.save(update_fields=['status'])
-            self.stdout.write(self.style.WARNING(f"Рассылка ID {mailing.id} завершена по времени."))
+            mailing.status = "completed"
+            mailing.save(update_fields=["status"])
+            self.stdout.write(
+                self.style.WARNING(f"Рассылка ID {mailing.id} завершена по времени.")
+            )
 
         # 2. Находим рассылки, которые должны работать прямо сейчас
         # Статус 'created' (но время уже пришло) или 'launched' (уже в процессе)
         active_mailings = MailingManagement.objects.filter(
-            status__in=['created', 'launched'],
-            start_time__lte=now,
-            end_time__gte=now
+            status__in=["created", "launched"], start_time__lte=now, end_time__gte=now
         )
 
         if not active_mailings.exists():
@@ -47,17 +50,22 @@ class Command(BaseCommand):
 
         for mailing in active_mailings:
             # Если рассылка только стартовала, меняем статус на launched
-            if mailing.status == 'created':
-                mailing.status = 'launched'
-                mailing.save(update_fields=['status'])
+            if mailing.status == "created":
+                mailing.status = "launched"
+                mailing.save(update_fields=["status"])
 
             recipients = mailing.recipients.all()
             if not recipients.exists():
-                self.stdout.write(self.style.WARNING(f"У рассылки ID {mailing.id} нет получателей. Пропускаем."))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"У рассылки ID {mailing.id} нет получателей. Пропускаем."
+                    )
+                )
                 continue
 
             self.stdout.write(
-                f"Обработка рассылки '{mailing.message.message_subject}' для {recipients.count()} клиентов...")
+                f"Обработка рассылки '{mailing.message.message_subject}' для {recipients.count()} клиентов..."
+            )
 
             # 3. Отправка писем получателям
             for client in recipients:
@@ -66,7 +74,11 @@ class Command(BaseCommand):
                 # если скрипт запускается каждые 5 минут, а рассылка долгосрочная.
 
                 # Формируем имя или ставим заглушку, если оно не заполнено
-                client_name = client.full_name if getattr(client, 'full_name', None) else "Розничный клиент"
+                client_name = (
+                    client.full_name
+                    if getattr(client, "full_name", None)
+                    else "Розничный клиент"
+                )
 
                 try:
                     send_mail(
@@ -79,15 +91,17 @@ class Command(BaseCommand):
                     # ИСПРАВЛЕНО: Пишем в лог персональный отчет об успешной доставке
                     MailingLog.objects.create(
                         mailing=mailing,
-                        status='success',
-                        server_response=f"Получатель: {client_name} | Email: {client.email} | Статус: Доставлено фоновым роботом"
+                        status="success",
+                        server_response=f"Получатель: {client_name} | Email: {client.email} | Статус: Доставлено фоновым роботом",
                     )
                 except (smtplib.SMTPException, Exception) as e:
                     # ИСПРАВЛЕНО: Пишем точечный отчет о сбое для конкретного адресата
                     MailingLog.objects.create(
                         mailing=mailing,
-                        status='failed',
-                        server_response=f"Получатель: {client_name} | Email: {client.email} | Сбой SMTP: {str(e)}"
+                        status="failed",
+                        server_response=f"Получатель: {client_name} | Email: {client.email} | Сбой SMTP: {str(e)}",
                     )
 
-            self.stdout.write(self.style.SUCCESS(f"Рассылка ID {mailing.id} успешно обработана."))
+            self.stdout.write(
+                self.style.SUCCESS(f"Рассылка ID {mailing.id} успешно обработана.")
+            )

@@ -45,25 +45,23 @@ class CustomUser(AbstractUser):
         help_text="Загрузите аватар",
     )
     is_subscribed = models.BooleanField(
-        default=True,
-        verbose_name="Согласен на получение маркетинговых рассылок"
+        default=True, verbose_name="Согласен на получение маркетинговых рассылок"
     )
     # Статус валидности email для защиты репутации домена
     EMAIL_STATUS_CHOICES: list[tuple[str, str]] = [
-        ('unverified', 'Не подтвержден'),
-        ('verified', 'Подтвержден'),
-        ('bounced', 'Ошибка доставки (Bounced)'),
+        ("unverified", "Не подтвержден"),
+        ("verified", "Подтвержден"),
+        ("bounced", "Ошибка доставки (Bounced)"),
     ]
     email_status = models.CharField(
         max_length=15,
         choices=EMAIL_STATUS_CHOICES,
-        default='unverified',
-        verbose_name="Статус Email"
+        default="unverified",
+        verbose_name="Статус Email",
     )
     # Дата изменения статуса подписки (полезно для аналитики)
     subscription_updated_at = models.DateTimeField(
-        default=timezone.now,
-        verbose_name="Дата изменения подписки"
+        default=timezone.now, verbose_name="Дата изменения подписки"
     )
 
     USERNAME_FIELD = "email"
