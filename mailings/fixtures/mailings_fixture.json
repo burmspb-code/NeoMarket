@@ -1,0 +1,751 @@
+[
+{
+    "model": "mailings.mailingclient",
+    "pk": 1,
+    "fields": {
+        "email": "burmspb@gmail.com",
+        "full_name": "МИБ",
+        "comment": "Тест",
+        "user": 1
+    }
+},
+{
+    "model": "mailings.mailingclient",
+    "pk": 2,
+    "fields": {
+        "email": "bur_spb@mail.ru",
+        "full_name": "МИБ",
+        "comment": "Отправка тестового письма на mail.ru",
+        "user": null
+    }
+},
+{
+    "model": "mailings.mailingclient",
+    "pk": 3,
+    "fields": {
+        "email": "michael.burdukovscky@yandex.ru",
+        "full_name": "МИБ",
+        "comment": "Отправка тестового письма на yandex.ru",
+        "user": 2
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 1,
+    "fields": {
+        "message_subject": "Тестовая тема",
+        "message_body": "Тестовое сообщение"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 2,
+    "fields": {
+        "message_subject": "Тестовая тема 1",
+        "message_body": "Тестовой тело сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 3,
+    "fields": {
+        "message_subject": "Тестовое сообщение 2",
+        "message_body": "Тело сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 4,
+    "fields": {
+        "message_subject": "Тестовое сообщение 3",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 5,
+    "fields": {
+        "message_subject": "Тестовое сообщение 4",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 6,
+    "fields": {
+        "message_subject": "Тестовое сообщение 5",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 7,
+    "fields": {
+        "message_subject": "Тестовое сообщение 6",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 8,
+    "fields": {
+        "message_subject": "Тестовое сообщение 6",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 9,
+    "fields": {
+        "message_subject": "Тестовое сообщение 6",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 10,
+    "fields": {
+        "message_subject": "Тестовое сообщение 7",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 11,
+    "fields": {
+        "message_subject": "Тестовое сообщение 8",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 12,
+    "fields": {
+        "message_subject": "Тестовое сообщение 9",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 13,
+    "fields": {
+        "message_subject": "Тестовое сообщение 10",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 14,
+    "fields": {
+        "message_subject": "Тестовое сообщение 11",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 15,
+    "fields": {
+        "message_subject": "Тестовое сообщение 12",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 16,
+    "fields": {
+        "message_subject": "Тестовое сообщение 13",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 17,
+    "fields": {
+        "message_subject": "Тестовое сообщение 13",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 18,
+    "fields": {
+        "message_subject": "Тестовое сообщение 14",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 19,
+    "fields": {
+        "message_subject": "Тестовое сообщение 15",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmessage",
+    "pk": 20,
+    "fields": {
+        "message_subject": "Тестовое сообщение 16",
+        "message_body": "Текст нового сообщения"
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 1,
+    "fields": {
+        "start_time": "2026-07-16T21:00:00Z",
+        "end_time": "2026-07-17T15:00:00Z",
+        "status": "completed",
+        "message": 1,
+        "owner": 1,
+        "recipients": [
+            1
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 2,
+    "fields": {
+        "start_time": "2026-07-17T11:48:33Z",
+        "end_time": "2026-07-17T15:00:00Z",
+        "status": "completed",
+        "message": 2,
+        "owner": 1,
+        "recipients": [
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 3,
+    "fields": {
+        "start_time": "2026-07-17T20:12:00Z",
+        "end_time": "2026-07-17T20:40:00Z",
+        "status": "completed",
+        "message": 2,
+        "owner": 1,
+        "recipients": [
+            1
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 4,
+    "fields": {
+        "start_time": "2026-07-18T19:06:00Z",
+        "end_time": "2026-07-18T21:00:00Z",
+        "status": "completed",
+        "message": 3,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 5,
+    "fields": {
+        "start_time": "2026-07-18T20:03:00Z",
+        "end_time": "2026-07-18T22:05:00Z",
+        "status": "completed",
+        "message": 4,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 6,
+    "fields": {
+        "start_time": "2026-07-18T21:10:00Z",
+        "end_time": "2026-07-18T21:15:00Z",
+        "status": "completed",
+        "message": 5,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 7,
+    "fields": {
+        "start_time": "2026-07-18T21:17:00Z",
+        "end_time": "2026-07-18T21:20:00Z",
+        "status": "completed",
+        "message": 6,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 9,
+    "fields": {
+        "start_time": "2026-07-19T12:20:00Z",
+        "end_time": "2026-07-19T12:30:00Z",
+        "status": "completed",
+        "message": 9,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 10,
+    "fields": {
+        "start_time": "2026-07-19T13:16:00Z",
+        "end_time": "2026-07-19T13:20:00Z",
+        "status": "completed",
+        "message": 10,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 11,
+    "fields": {
+        "start_time": "2026-07-19T13:30:00Z",
+        "end_time": "2026-07-19T13:35:00Z",
+        "status": "completed",
+        "message": 11,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 12,
+    "fields": {
+        "start_time": "2026-07-19T13:01:00Z",
+        "end_time": "2026-07-19T13:10:00Z",
+        "status": "completed",
+        "message": 12,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 13,
+    "fields": {
+        "start_time": "2026-07-19T14:02:00Z",
+        "end_time": "2026-07-19T14:05:00Z",
+        "status": "completed",
+        "message": 13,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 14,
+    "fields": {
+        "start_time": "2026-07-19T14:15:00Z",
+        "end_time": "2026-07-19T14:25:00Z",
+        "status": "completed",
+        "message": 14,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 15,
+    "fields": {
+        "start_time": "2026-07-19T14:26:00Z",
+        "end_time": "2026-07-19T14:30:00Z",
+        "status": "completed",
+        "message": 15,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 16,
+    "fields": {
+        "start_time": "2026-07-19T14:32:00Z",
+        "end_time": "2026-07-19T14:35:00Z",
+        "status": "completed",
+        "message": 16,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 17,
+    "fields": {
+        "start_time": "2026-07-19T14:42:00Z",
+        "end_time": "2026-07-19T14:46:00Z",
+        "status": "completed",
+        "message": 17,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 18,
+    "fields": {
+        "start_time": "2026-07-19T14:53:00Z",
+        "end_time": "2026-07-19T14:57:00Z",
+        "status": "completed",
+        "message": 18,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 19,
+    "fields": {
+        "start_time": "2026-07-19T15:00:00Z",
+        "end_time": "2026-07-19T15:16:00Z",
+        "status": "completed",
+        "message": 19,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailingmanagement",
+    "pk": 20,
+    "fields": {
+        "start_time": "2026-07-19T15:10:00Z",
+        "end_time": "2026-07-19T15:16:00Z",
+        "status": "completed",
+        "message": 20,
+        "owner": 1,
+        "recipients": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 1,
+    "fields": {
+        "mailing": 1,
+        "attempt_time": "2026-07-17T11:42:58.948Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 2,
+    "fields": {
+        "mailing": 2,
+        "attempt_time": "2026-07-17T12:04:36.313Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 3,
+    "fields": {
+        "mailing": 2,
+        "attempt_time": "2026-07-17T12:04:38.033Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 4,
+    "fields": {
+        "mailing": 3,
+        "attempt_time": "2026-07-17T20:29:01.463Z",
+        "status": "success",
+        "server_response": "Письмо успешно отправлено фоновым роботом."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 5,
+    "fields": {
+        "mailing": 4,
+        "attempt_time": "2026-07-18T20:01:06.258Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 6,
+    "fields": {
+        "mailing": 4,
+        "attempt_time": "2026-07-18T20:01:08.548Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 7,
+    "fields": {
+        "mailing": 4,
+        "attempt_time": "2026-07-18T20:01:10.018Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 8,
+    "fields": {
+        "mailing": 5,
+        "attempt_time": "2026-07-18T20:39:56.801Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 9,
+    "fields": {
+        "mailing": 5,
+        "attempt_time": "2026-07-18T20:39:58.452Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 10,
+    "fields": {
+        "mailing": 5,
+        "attempt_time": "2026-07-18T20:40:00.471Z",
+        "status": "success",
+        "server_response": "Письмо успешно доставлено через веб-интерфейс (CBV)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 11,
+    "fields": {
+        "mailing": 6,
+        "attempt_time": "2026-07-18T21:11:37.646Z",
+        "status": "failed",
+        "server_response": "Адресат: МИБ | Email: burmspb@gmail.com | Ошибка SMTP: name 'settings' is not defined"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 12,
+    "fields": {
+        "mailing": 6,
+        "attempt_time": "2026-07-18T21:11:37.728Z",
+        "status": "failed",
+        "server_response": "Адресат: МИБ | Email: bur_spb@mail.ru | Ошибка SMTP: name 'settings' is not defined"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 13,
+    "fields": {
+        "mailing": 6,
+        "attempt_time": "2026-07-18T21:11:37.808Z",
+        "status": "failed",
+        "server_response": "Адресат: МИБ | Email: michael.burdukovscky@yandex.ru | Ошибка SMTP: name 'settings' is not defined"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 14,
+    "fields": {
+        "mailing": 7,
+        "attempt_time": "2026-07-18T21:18:21.429Z",
+        "status": "success",
+        "server_response": "Адресат: МИБ | Email: burmspb@gmail.com | Статус: Доставлено (200 OK)"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 15,
+    "fields": {
+        "mailing": 7,
+        "attempt_time": "2026-07-18T21:18:23.526Z",
+        "status": "success",
+        "server_response": "Адресат: МИБ | Email: bur_spb@mail.ru | Статус: Доставлено (200 OK)"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 16,
+    "fields": {
+        "mailing": 7,
+        "attempt_time": "2026-07-18T21:18:25.370Z",
+        "status": "success",
+        "server_response": "Адресат: МИБ | Email: michael.burdukovscky@yandex.ru | Статус: Доставлено (200 OK)"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 17,
+    "fields": {
+        "mailing": 14,
+        "attempt_time": "2026-07-19T14:15:59.971Z",
+        "status": "failed",
+        "server_response": "Ошибка почтового сервера: 'MailingMessage' object has no attribute 'message_text'"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 18,
+    "fields": {
+        "mailing": 15,
+        "attempt_time": "2026-07-19T14:26:18.007Z",
+        "status": "failed",
+        "server_response": "Ошибка почтового сервера: 'MailingMessage' object has no attribute 'message_text'"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 19,
+    "fields": {
+        "mailing": 15,
+        "attempt_time": "2026-07-19T14:29:15.083Z",
+        "status": "success",
+        "server_response": "Письма успешно отправлены на 3 адрес(ов)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 20,
+    "fields": {
+        "mailing": 16,
+        "attempt_time": "2026-07-19T14:32:29.976Z",
+        "status": "failed",
+        "server_response": "Ошибка почтового сервера: 'MailingMessage' object has no attribute 'message_text'"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 21,
+    "fields": {
+        "mailing": 17,
+        "attempt_time": "2026-07-19T14:42:48.307Z",
+        "status": "success",
+        "server_response": "Письма успешно отправлены на 3 адрес(ов)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 22,
+    "fields": {
+        "mailing": 17,
+        "attempt_time": "2026-07-19T14:42:48.553Z",
+        "status": "success",
+        "server_response": "Письма успешно отправлены на 3 адрес(ов)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 23,
+    "fields": {
+        "mailing": 19,
+        "attempt_time": "2026-07-19T15:00:16.118Z",
+        "status": "success",
+        "server_response": "Письма успешно отправлены на 3 адрес(ов)."
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 24,
+    "fields": {
+        "mailing": 20,
+        "attempt_time": "2026-07-19T15:10:39.429Z",
+        "status": "success",
+        "server_response": "Адресат: МИБ | Email: burmspb@gmail.com | Статус: Доставлено (200 OK)"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 25,
+    "fields": {
+        "mailing": 20,
+        "attempt_time": "2026-07-19T15:10:41.043Z",
+        "status": "success",
+        "server_response": "Адресат: МИБ | Email: bur_spb@mail.ru | Статус: Доставлено (200 OK)"
+    }
+},
+{
+    "model": "mailings.mailinglog",
+    "pk": 26,
+    "fields": {
+        "mailing": 20,
+        "attempt_time": "2026-07-19T15:10:42.974Z",
+        "status": "success",
+        "server_response": "Адресат: МИБ | Email: michael.burdukovscky@yandex.ru | Статус: Доставлено (200 OK)"
+    }
+}
+]

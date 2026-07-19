@@ -1,11 +1,10 @@
 """Представления для управления учетными записями пользователя с безопасными токенами."""
 
-import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import LoginView  # Добавлен импорт для страницы входа
+from django.contrib.auth.views import LoginView
 from django.core.mail import send_mail
 from django.db import transaction
 from django.shortcuts import redirect, render
@@ -15,7 +14,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.generic import TemplateView, View, UpdateView
 from django.views.generic.edit import CreateView
 
-from .forms import CustomUserCreationForm, UserProfileForm  # Объединено в одну строку
+from .forms import CustomUserCreationForm, UserProfileForm
 from .models import CustomUser
 
 
@@ -93,7 +92,7 @@ class EmailConfirmView(View):
 
     def get(self, request, uidb64, token):
         try:
-            # ИСПРАВЛЕНО: Используем корректное имя модели CustomUser вместо User
+            # Используем корректное имя модели CustomUser вместо User
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
@@ -102,6 +101,7 @@ class EmailConfirmView(View):
         # Проверяем, существует ли пользователь и валиден ли токен (не истек ли срок)
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
+            user.email_status = "verified"  # Меняем статус почты
             user.save()
 
             # Добавляем красивое уведомление, которое отобразится на странице входа

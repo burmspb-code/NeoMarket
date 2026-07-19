@@ -20,9 +20,22 @@
                         <!-- Отображение текущего аватара, если он загружен -->
                         {% if user.avatar %}
                             <div class="text-center mb-4">
-                                <img src="{{ user.avatar.url }}" alt="Аватар" class="rounded-circle shadow-sm" style="width: 1200px; height: 120px; object-fit: cover;">
+                                <img src="{{ user.avatar.url }}" alt="Аватар" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
                             </div>
                         {% endif %}
+
+                        <!-- Email (Только для чтения, стилизован под Bootstrap) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary w-100">
+                                <span class="d-block mb-1">Электронная почта</span>
+                                <input type="email"
+                                       class="form-control bg-light text-muted"
+                                       value="{{ form.email.value|default:user.email }}"
+                                       readonly
+                                       disabled>
+                            </label>
+                            <div class="form-text text-muted small">Адрес почты используется для входа, его нельзя изменить.</div>
+                        </div>
 
                         <!-- Имя -->
                         <div class="mb-3">

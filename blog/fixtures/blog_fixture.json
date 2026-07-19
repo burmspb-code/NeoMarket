@@ -1,0 +1,41 @@
+[
+{
+    "model": "blog.post",
+    "pk": 1,
+    "fields": {
+        "title": "Тестовая статья №1",
+        "content": "Тестовое содержимое",
+        "preview": "blog_previews/А1416_wix9cHj.jpg",
+        "created_at": "2026-07-09T09:01:54.047Z",
+        "is_published": true,
+        "views_count": 13,
+        "owner": 1
+    }
+},
+{
+    "model": "blog.post",
+    "pk": 2,
+    "fields": {
+        "title": "Тестовая статья №2",
+        "content": "Тестовое содержимое",
+        "preview": "",
+        "created_at": "2026-07-09T09:02:49.876Z",
+        "is_published": true,
+        "views_count": 8,
+        "owner": 1
+    }
+},
+{
+    "model": "blog.post",
+    "pk": 4,
+    "fields": {
+        "title": "Тестовая стать №3",
+        "content": "Содержание тестовой статьи №3.",
+        "preview": "blog_previews/4025_1_WWzhfDZ.jpg",
+        "created_at": "2026-07-09T10:14:56.055Z",
+        "is_published": true,
+        "views_count": 14,
+        "owner": 2
+    }
+}
+]
