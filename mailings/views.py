@@ -1,11 +1,8 @@
 """Контроллеры для управления сервисом рассылок."""
 
-import smtplib
-
 from django.contrib import messages
-from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.mail import send_mail
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -219,7 +216,33 @@ class MailingDetailView(PermissionRequiredMixin, DetailView):
     raise_exception = True
 
     def get_context_data(self, **kwargs):
+        """Сбор данных их БД для шаблона HTML."""
+        # Сбор баозового словаря в переменную context
         context = super().get_context_data(**kwargs)
-        # Исправлено: обращаемся к полю recipients, описанному в модели
+        # Добавляем новый ключ, обращаемся к полю recipients, описанному в модели
         context['clients'] = self.object.recipients.all()
         return context
+
+    def get_object(self, queryset=None):
+        """Возвращает объект рассылки из низкоуровневого кэша Redis."""
+        # Получаем ID текущей рассылки из URL-параметров
+        mailing_id = self.kwargs.get(self.pk_url_kwarg) or self.kwargs.get('pk')
+
+        # Формируем уникальный динамический ключ кэша для этой рассылки
+        cache_key = f'mailing_detail_{mailing_id}'
+
+        # Пытаемся достать объект из Redis
+        mailing_object = cache.get(cache_key)
+
+        if not mailing_object:
+            # Если в Redis пусто — делаем один тяжелый оптимизированный запрос в базу
+            mailing_object = MailingManagement.objects.select_related('message').prefetch_related('recipients').get(
+                pk=mailing_id)
+
+            # Сохраняем объект в Redis на 10 минут (600 секунд)
+            cache.set(cache_key, mailing_object, 600)
+            print(f"[Django Cache] Запись с ID {mailing_id} не найдена в Redis. Загружено из БД и закэшировано.")
+        else:
+            print(f"[Django Cache] Успех! Запись с ID {mailing_id} мгновенно получена из Redis.")
+
+        return mailing_object

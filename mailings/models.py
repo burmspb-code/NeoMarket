@@ -1,6 +1,7 @@
 """Модели для приложения mailings."""
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
@@ -188,7 +189,6 @@ class MailingManagement(models.Model):
 
     def save(self, *args, **kwargs):
         """Переопределение сохранения для принудительного вызова валидации."""
-
         # Если объект создается впервые, рассчитываем актуальный статус перед сохранением
         if not self.pk:
             now = timezone.now()
@@ -200,6 +200,11 @@ class MailingManagement(models.Model):
                 self.status = 'completed'
 
         super().save(*args, **kwargs)
+
+        # ЮВЕЛИРНАЯ ИНВАЛИДАЦИЯ КЭША:
+        # Удаляем из Redis кэш только этой конкретной рассылки по её ID
+        cache_key = f'mailing_detail_{self.pk}'
+        cache.delete(cache_key)
 
 
 class MailingLog(models.Model):

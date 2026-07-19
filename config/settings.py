@@ -1,6 +1,6 @@
 import redis
-from redis.exceptions import RedisError
 
+# ====== Временный обход ограничений в рамках работы с устаревшей версией Redis =============================
 # Патч №1: Форсируем протокол RESP2 для всех соединений
 original_init = redis.connection.Connection.__init__
 def patched_init(self, *args, **kwargs):
@@ -12,7 +12,7 @@ redis.connection.Connection.__init__ = patched_init
 def patched_configure_maintenance_notifications(self, *args, **kwargs):
     self._maint_notifications_pool_handler = None
 redis.connection.Connection._configure_maintenance_notifications = patched_configure_maintenance_notifications
-
+# ============================================================================================================
 
 import os
 from pathlib import Path
@@ -208,11 +208,11 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-# 1. Возвращаем чистые классические URL без параметров в строке
+# Возвращаем чистые классические URL без параметров в строке
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
-# 2. Переопределяем пул соединений для БРОКЕРА
+# Переопределяем пул соединений для БРОКЕРА
 # Это заставит внутренний драйвер принудительно использовать старый протокол RESP2
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     'redis_version': 3,
@@ -222,7 +222,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     }
 }
 
-# 3. Переопределяем пул соединений для БЭКЕНДА РЕЗУЛЬТАТОВ
+# Переопределяем пул соединений для БЭКЕНДА РЕЗУЛЬТАТОВ
 CELERY_REDIS_BACKEND_TRANSPORT_OPTIONS = {
     'redis_version': 3,
     'connection_pool_cls': ConnectionPool,
