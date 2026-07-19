@@ -15,16 +15,26 @@ from django.views.generic import ListView
 
 from mailings.forms import MailingManagementForm
 from mailings.models import MailingLog, MailingClient, MailingManagement, MailingMessage
+from .tasks import send_single_mailing_task  # Импортируем нашу таску
 
 
-class ManualStartMailingView(View):
-    """Класс-контроллер (CBV) для ручного запуска рассылки через веб-интерфейс."""
+class ManualStartMailingView(PermissionRequiredMixin, View):
+    """Класс-контроллер (CBV) для запуска рассылки."""
+
+    # Контент-менеджер должен иметь право изменять рассылки
+    permission_required = 'mailings.change_mailingmanagement'
+    raise_exception = True
 
     def get(self, request, *args, **kwargs):
         """Обработка GET-запроса при клике на кнопку запуска."""
-        # Получаем ID рассылки из именованных аргументов URL
         mailing_id = kwargs.get('mailing_id')
-        mailing = get_object_or_404(MailingManagement, pk=mailing_id)
+
+        # БЕЗОПАСНОСТЬ: Админ может запустить любую рассылку, контент-менеджер — только свою
+        if request.user.is_superuser:
+            mailing = get_object_or_404(MailingManagement, pk=mailing_id)
+        else:
+            mailing = get_object_or_404(MailingManagement, pk=mailing_id, owner=request.user)
+
         now = timezone.now()
 
         # --- Проверка временных рамок ---
@@ -34,64 +44,32 @@ class ManualStartMailingView(View):
                 f"Ошибка запуска: Текущее время вне рамок актуальности рассылки "
                 f"({mailing.start_time:%d.%m.%Y %H:%M} — {mailing.end_time:%d.%m.%Y %H:%M})."
             )
-            return redirect(request.META.get('HTTP_REFERER', '/admin/'))
+            return redirect(request.META.get('HTTP_REFERER', 'mailings:dashboard'))
 
-        # Находим получателей
-        recipients = mailing.recipients.all()
-        if not recipients.exists():
+        # Проверяем наличие получателей перед отправкой в очередь
+        if not mailing.recipients.exists():
             messages.warning(request, f"У рассылки '{mailing.message.message_subject}' нет получателей.")
-            return redirect(request.META.get('HTTP_REFERER', '/admin/'))
+            return redirect(request.META.get('HTTP_REFERER', 'mailings:dashboard'))
 
         # Меняем статус на "Запущена" (launched)
         mailing.status = 'launched'
         mailing.save(update_fields=['status'])
 
-        success_count = 0
-        failed_count = 0
+        # --- Отправка задачи в Celery (Redis) ---
+        # Метод .delay() мгновенно закидывает ID рассылки в Redis и возвращает управление.
+        # Цикл отправки писем будет выполняться в фоне, не подвешивая браузер менеджера.
+        send_single_mailing_task.delay(mailing.pk)
 
-        # --- Отправка писем и логирование ---
-        for client in recipients:
-            # Берем имя или подставляем заглушку, если поле пустое
-            client_name = client.full_name if client.full_name else "Розничный клиент"
-
-            try:
-                send_mail(
-                    subject=mailing.message.message_subject,
-                    message=mailing.message.message_body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[client.email],
-                    fail_silently=False,
-                )
-                # Записываем в строку ответа ФИО и Email получателя писем
-                MailingLog.objects.create(
-                    mailing=mailing,
-                    status='success',
-                    server_response=f"Адресат: {client_name} | Email: {client.email} | Статус: Доставлено (200 OK)"
-                )
-                success_count += 1
-            except (smtplib.SMTPException, Exception) as e:
-                # Записываем детальные данные сбоя для конкретного человека
-                MailingLog.objects.create(
-                    mailing=mailing,
-                    status='failed',
-                    server_response=f"Адресат: {client_name} | Email: {client.email} | Ошибка SMTP: {str(e)}"
-                )
-                failed_count += 1
-
-        # Завершаем кампанию рассылки
-        mailing.status = 'completed'
-        mailing.save(update_fields=['status'])
-
-        # Выводим отчет на экран пользователю
+        # Выводим сообщение о том, что процесс пошел в фоне
         messages.success(
             request,
-            f"Рассылка полностью обработана. Успешно отправлено: {success_count}. "
-            f"Ошибок доставки: {failed_count}."
+            f"Рассылка «{mailing.message.message_subject}» успешно запущена в фоновом режиме. "
+            f"Результаты отправки будут появляться в логах."
         )
-        return redirect(request.META.get('HTTP_REFERER', '/admin/'))
+        return redirect(request.META.get('HTTP_REFERER', 'mailings:dashboard'))
 
 
-class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class MailingDashboardView(PermissionRequiredMixin, ListView):
     """Класс-контроллер (CBV) для отображения панели мониторинга (Дашборда) рассылок.
 
     Выводит ключевые метрики эффективности маркетинговых кампаний NeoMarket
@@ -122,8 +100,16 @@ class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView
     raise_exception = True
 
     def get_queryset(self):
-        """Жадно подгружаем сообщения для исключения пустых строк в шаблоне."""
-        return super().get_queryset().select_related('message')
+        """Жадно подгружаем сообщения и фильтруем по автору."""
+        # Получаем базовый queryset с уже настроенной жадной загрузкой сообщений
+        queryset = super().get_queryset().select_related('message')
+
+        # Если это администратор, отдаем все рассылки (с подгруженными сообщениями)
+        if self.request.user.is_superuser:
+            return queryset
+
+        # Если это контент-менеджер, отдаем только его рассылки
+        return queryset.filter(owner=self.request.user)
 
     def get_context_data(self, **kwargs):
         """Расчет показателей для карточек аналитики и выгрузка логов."""
@@ -155,7 +141,7 @@ class MailingDashboardView(LoginRequiredMixin, PermissionRequiredMixin, ListView
         return context
 
 
-class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class MailingCreateView(PermissionRequiredMixin, CreateView):
     """Класс-контроллер (CBV) для создания новой кампании рассылки.
 
     Предоставляет менеджеру интерфейс для планирования рассылки. Доступ к странице
@@ -187,15 +173,12 @@ class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
     def form_valid(self, form):
         """Обрабатывает сценарий, когда отправленная форма валидна.
 
-        Принудительно устанавливает статус рассылки в значение 'created'
-        для обеспечения корректного жизненного цикла кампании в системе.
-
-        Args:
-            form (MailingManagementForm): Экземпляр валидированной формы.
-
-        Returns:
-            HttpResponse: Перенаправление на страницу success_url.
+        Автоматически назначает текущего авторизованного пользователя автором
+        рассылки и принудительно устанавливает статус 'created'.
         """
+        # БЕЗОПАСНОСТЬ: Насильно привязываем текущего контент-менеджера к полю owner
+        form.instance.owner = self.request.user
+
         # Извлекаем данные виртуальных полей
         subject = form.cleaned_data.get('message_subject')
         body = form.cleaned_data.get('message_body')
@@ -211,10 +194,11 @@ class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
 
         # Принудительно выставляем статус 'created' для рассылки
         form.instance.status = 'created'
+
         return super().form_valid(form)
 
 
-class MailingLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class MailingLogListView(PermissionRequiredMixin, ListView):
     """Страница для просмотра полной истории логов отправки писем."""
     model = MailingLog
     template_name = 'mailings/log_list.html'

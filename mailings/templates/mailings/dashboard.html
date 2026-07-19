@@ -31,10 +31,19 @@
             <h2 class="fw-bold text-dark mb-1">Панель мониторинга рассылок</h2>
             <p class="text-muted small mb-0">Оперативная статистика и управление маркетинговыми кампаниями NeoMarket</p>
         </div>
-        <!-- Кнопка создания новой рассылки -->
-        <a href="{% url 'mailings:create' %}" class="btn btn-warning fw-semibold shadow-sm px-4">
-            <i class="bi bi-plus-lg me-1"></i> Новая рассылка
-        </a>
+
+        <!-- Правый блок: объединяем кнопки управления вместе -->
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <!-- Кнопка подсказки (справки) -->
+            <button type="button" class="btn btn-outline-secondary fw-semibold shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#helpModal">
+                <i class="bi bi-question-circle me-1"></i> Как создать рассылку?
+            </button>
+
+            <!-- Кнопка создания новой рассылки -->
+            <a href="{% url 'mailings:create' %}" class="btn btn-warning fw-semibold shadow-sm px-4">
+                <i class="bi bi-plus-lg me-1"></i> Новая рассылка
+            </a>
+        </div>
     </div>
 
 
@@ -146,7 +155,7 @@
     </div>
 
     <!-- ТАБЛИЦА ВСЕХ РАССЫЛОК -->
-    <div class="card table-container shadow-sm p-4">
+    <div class="card table-container shadow-sm p-5">
         <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-list-task me-2 text-secondary"></i>История и запланированные кампании</h5>
 
         <div class="table-responsive">
@@ -157,6 +166,7 @@
                         <th scope="col">Статус</th>
                         <th scope="col">Дата запуска</th>
                         <th scope="col">Дата окончания</th>
+                        <th scope="col">Автор</th>
                     </tr>
                 </thead>
                 <tbody class="small">
@@ -199,10 +209,20 @@
                         <!-- Даты -->
                         <td class="text-muted align-middle">{{ mailing.start_time|date:"d.m.Y H:i" }}</td>
                         <td class="text-muted align-middle">{{ mailing.end_time|date:"d.m.Y H:i" }}</td>
+
+                        <!--Автор -->
+                        <td class="text-muted align-middle">
+                            {% if mailing.owner.get_full_name %}
+                                {{ mailing.owner.get_full_name }} <span class="opacity-75">({{ mailing.owner.email }})</span>
+                            {% else %}
+                                {{ mailing.owner.email|default:mailing.owner.username }}
+                            {% endif %}
+                        </td>
+
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
+                        <td colspan="5" class="text-center py-5 text-muted">
                             <i class="bi bi-mailbox fs-2 d-block mb-2 text-black-50"></i>
                             В сервисе NeoMarket пока не создано ни одной рассылки.
                         </td>
@@ -210,6 +230,40 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно с подсказками -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 p-3">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="helpModalLabel"><i class="bi bi-journal-text me-2 text-primary"></i>Памятка контент-менеджера NeoMarket</h5>
+                <button type="button" class="btn-close" data-bs-target="#helpModal" data-bs-toggle="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ol class="list-group list-group-numbered list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-start border-0 py-3">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Создайте сообщение</div>
+                            Нажмите "+Новая рассылка" и заполните форму.
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start border-0 py-3">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Проверьте время старта</div>
+                            Дата начала не должна быть в прошлом, иначе система выдаст ошибку валидации.
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start border-0 py-3">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Статусы рассылок</div>
+                            Робот автоматически запустит кампанию, когда наступит время старта. Кнопка <span class="badge bg-outline-success text-success border border-success px-1">Запустить сейчас</span> отправит письма немедленно.
+                        </div>
+                    </li>
+                </ol>
+            </div>
         </div>
     </div>
 </div>

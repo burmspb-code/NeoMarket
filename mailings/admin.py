@@ -43,7 +43,7 @@ class MailingManagementAdmin(admin.ModelAdmin):
     search_fields = ("start_time", "end_time", "status")
 
     # Поля, на которые можно нажать для перехода к редактированию
-    list_display_links = ("status",)
+    list_display_links = ("message",)
 
     # Добавляем поле кнопки только для чтения на страницу редактирования
     readonly_fields = ("start_button",)

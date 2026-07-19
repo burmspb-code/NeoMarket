@@ -94,6 +94,7 @@ class MailingManagement(models.Model):
         status (CharField): Статус рассылки.
         message (ForeignKey): Внешний ключ модели MailingMessage (один ко многим).
         recipients (ManyToManyField): Внешний ключ модели MailingClient (многие ко многим).
+        owner (ForeignKey): Внешний ключ модели Custom.User (один ко многим).
     Атрибуты:
         STATUS_CHOICES: (list[tuple[str, str]]): Статус рассылки.
     """
@@ -136,6 +137,14 @@ class MailingManagement(models.Model):
         related_name="recipients",
         verbose_name="Получатели"
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        related_name="mailings",
+        verbose_name="Автор"
+    )
 
     class Meta:
         """Класс метаданных."""
@@ -176,6 +185,21 @@ class MailingManagement(models.Model):
                 raise ValidationError(
                     {"end_time": "Время окончания не может быть меньше времени начала рассылки."}
                 )
+
+    def save(self, *args, **kwargs):
+        """Переопределение сохранения для принудительного вызова валидации."""
+
+        # Если объект создается впервые, рассчитываем актуальный статус перед сохранением
+        if not self.pk:
+            now = timezone.now()
+            if self.start_time <= now <= self.end_time:
+                self.status = 'launched'
+            elif self.start_time > now:
+                self.status = 'created'
+            else:
+                self.status = 'completed'
+
+        super().save(*args, **kwargs)
 
 
 class MailingLog(models.Model):
